@@ -1,0 +1,85 @@
+/* General Body Styling */
+body {
+    font-family: "Roboto", sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+/* Container Styling */
+.container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 30px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Heading Styling */
+.container h1 {
+    text-align: center;
+    font-weight: 700;
+    color: #004d40;
+    margin-bottom: 20px;
+}
+
+/* Navigation Links */
+.brand-logo {
+    margin-right: 10px;
+    font-weight: 600;
+    text-decoration: none;
+    color: #007bff;
+    transition: color 0.3s ease;
+}
+
+.brand-logo:hover {
+    color: #0056b3;
+}
+
+/* Form Labels and Inputs */
+label {
+    font-weight: 600;
+}
+
+input,
+textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+textarea {
+    resize: none;
+}
+
+/* Buttons */
+button {
+    width: 100%;
+    background-color: #007bff;
+    border: none;
+    color: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    transition: background 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Message Box Styling */
+.message-box {
+    margin-top: 30px;
+}
+
+.message-box textarea {
+    height: 200px;
+}

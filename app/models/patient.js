@@ -6,6 +6,6 @@ const patientSchema = new db.Schema({
     lastAccess:     { type: Date, default: Date.now },
  });
 
- const Patient = new db.model("Customer", patientSchema); 
+const Patient = new db.model("Patient", patientSchema); 
 
 module.exports = Patient;

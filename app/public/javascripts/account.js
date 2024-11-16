@@ -3,7 +3,7 @@ $(function (){
     $('#btnLogOut').click(logout);
 
     $.ajax({
-        url: '/customers/status',
+        url: '/patients/status',
         method: 'GET',
         headers: { 'x-auth' : window.localStorage.getItem("token") },
         dataType: 'json'

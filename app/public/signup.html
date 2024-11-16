@@ -1,36 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Authentication Example Sign up</title>
+    <title>Authentication Example - Sign Up</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+    />
+    <!-- External CSS -->
+    <link rel="stylesheet" href="stylesheets/login.css" />
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="javascripts/signup.js"></script>
   </head>
   <body>
     <div class="container">
-      <a href="index.html" class="">Home</a>
-      <a href="login.html" class="">LogIn</a>
-      <br/>
-      <h1>Sign Up</h1>
-      <br/>
-      <div>
-        <div>
-          <label for="email">Email: </label>
-          <input type="text" id="email" placeholder="Enter email" name="email">
-        </div>
-        <div>
-          <label for="password">Password: </label>
-          <input type="password" id="password" placeholder="Enter password" name="password">
-        </div>
-        <br/>
-        <button id="btnSignUp">SignUp</button>
+      <div class="text-center">
+        <a href="index.html" class="brand-logo">Home</a>
+        <a href="login.html" class="brand-logo">Log In</a>
       </div>
+      <h1>Sign Up</h1>
+      <div id="signupForm">
+        <div class="form-group">
+          <label for="email">Email:</label>
+          <input
+            type="email"
+            id="email"
+            class="form-control"
+            placeholder="Enter your email"
+            name="email"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="password">Password:</label>
+          <input
+            type="password"
+            id="password"
+            class="form-control"
+            placeholder="Enter your password"
+            name="password"
+            required
+          />
+        </div>
+        <button id="btnSignUp">Sign Up</button>
     </div>
-    <div style="display:inline-block; width:45vw; height: 60vh; margin: 2vh 20vw; ">
-      <label for="rxData">Message: </label>
-      <textarea id="rxData" style="width:100%; height:100%"></textarea>
+      <div class="message-box">
+        <label for="rxData">Message:</label>
+        <textarea
+          id="rxData"
+          class="form-control"
+          placeholder="Messages will appear here..."
+        ></textarea>
+      </div>
     </div>
   </body>
 </html>
