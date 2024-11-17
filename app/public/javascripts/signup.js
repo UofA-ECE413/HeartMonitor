@@ -1,13 +1,29 @@
 // public/javasciprts/signup.js
 
+function validateEmail(email) {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email);
+}
+
+function validatePassword(password) {
+    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+    return passwordPattern.test(password);
+}
+
 function signup() {
     // data validation
-    if ($('#email').val() === "") {
-        window.alert("invalid email!");
+    if ($('#email').val() === "" || !validateEmail($('#email').val())) {
+        $('#errorMsg').text("Invalid email");
         return;
     }
-    if ($('#password').val() === "") {
-        window.alert("invalid password");
+    if ($('#password').val() === "" || !validatePassword($('#password').val())) {
+        $('#errorMsg').html("<p>Invalid password. Password should have the following characteristics:</p>"
+            + "<ul><li>At least 8 characters long</li>"
+            + "<li>At least one lowercase letter</li>"
+            + "<li>At least one uppercase letter</li>"
+            + "<li>At least one digit</li>"
+            + "<li>At least one special character</li>"
+        );
         return;
     }
     let txdata = {
