@@ -9,4 +9,4 @@ const readingSchema = new db.Schema({
 
 const Reading = new db.model("Reading", readingSchema); 
 
-module.exports = Patient;
+module.exports = Reading;
