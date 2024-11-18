@@ -26,3 +26,5 @@ router.post('/addData', function (req, res) {
         res.status(400).json({ success: false, err: err });
     });
 });
+
+module.exports = router;
