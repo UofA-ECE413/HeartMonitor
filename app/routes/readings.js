@@ -23,17 +23,18 @@ router.post('/addData', function (req, res) {
     console.log(newReading);
     newReading.save().then((reading) => {
         // Send back a token that contains the user's username
+        console.log("SUCCESS");
         res.status(201).json({ success: true, msg: "Data added" });
     }).catch((err) => {
         res.status(400).json({ success: false, err: err });
     });
 });
 
-router.get("/getData", function (req, res) {
+router.get("/getData/:deviceID", function (req, res) {
     try {
         // Send back email and last access
-        Reading.find({}).then((user) => {
-            res.status(200).json({email: user.email, lastAccess: user.lastAccess});
+        Reading.find({deviceID: req.params.deviceID}).then((readings) => {
+            res.status(200).json(readings);
         }).catch((err) => {
             res.status(400).json({ success: false, message: "Error contacting DB. Please contact support." });
         });
