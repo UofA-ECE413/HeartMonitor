@@ -45,7 +45,7 @@ router.get("/getData/:deviceID", function (req, res) {
     const token = req.headers["x-auth"]; 
     try {
         const decoded = jwt.decode(token, secret);
-        console.log(params);
+        console.log(req.params);
         Reading.find({deviceID: req.params.deviceID}).then((readings) => {
             res.status(200).json(readings);
         }).catch((err) => {
