@@ -5,6 +5,9 @@ const jwt = require("jwt-simple");
 const bcrypt = require("bcryptjs");
 const fs = require('fs');
 
+
+const secret = fs.readFileSync(__dirname + '/../keys/jwtkey').toString();
+
 // example of authentication
 // register a new patient
 
