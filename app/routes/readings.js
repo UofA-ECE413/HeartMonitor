@@ -9,22 +9,18 @@ var Reading = require("../models/reading");
 // see Figure 9.3.5: Node.js project uses token-based authentication and password hashing with bcryptjs on zybooks
 
 router.post('/addData', function (req, res) {
-    let data = req.body.data;
-    console.log(req.body);
-    console.log("data: " + data);
-    console.log("ir: " + data.ir);
-    let jsonData = JSON.parse(data);
-    console.log(jsonData.ir);
+    let data = JSON.parse(req.body.data);
     if (!data.ir || !data.heartRate || !data.spo2) {
         res.status(401).json({ error: "Missing data" });
         return;
     }
-    const newReading = {
+    const newReading = new Reading ({
         ir: data.ir,
         heartRate: data.heartRate,
         spo2: data.spo2,
         deviceID: req.body.coreid
-    };
+    });
+    console.log(newReading);
     newReading.save().then((reading) => {
         // Send back a token that contains the user's username
         res.status(201).json({ success: true, msg: "Data added" });
