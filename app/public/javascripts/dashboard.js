@@ -2,8 +2,9 @@ $(getDeviceData);
 
 function getDeviceData() {
     $.ajax({
-        url: '/readings/getData?deviceID=e00fce6884202fbdd742846c',
+        url: '/readings/getData/e00fce6884202fbdd742846c',
         method: 'GET',
+        headers: { 'x-auth' : window.localStorage.getItem("token") },
         dataType: 'json'
     })
     .done(function (data) {

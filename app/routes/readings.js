@@ -31,7 +31,14 @@ router.post('/addData', function (req, res) {
 });
 
 router.get("/getData/:deviceID", function (req, res) {
+    // See if the X-Auth header is set
+    if (!req.headers["x-auth"]) {
+        return res.status(401).json({ success: false, msg: "Missing X-Auth header" });
+    }
+    // X-Auth should contain the token 
+    const token = req.headers["x-auth"]; 
     try {
+        const decoded = jwt.decode(token, secret);
         console.log(query);
         Reading.find({deviceID: req.params.deviceID}).then((readings) => {
             res.status(200).json(readings);
