@@ -32,7 +32,7 @@ router.post('/addData', function (req, res) {
 
 router.get("/getData/:deviceID", function (req, res) {
     try {
-        // Send back email and last access
+        console.log(query);
         Reading.find({deviceID: req.params.deviceID}).then((readings) => {
             res.status(200).json(readings);
         }).catch((err) => {
@@ -40,6 +40,7 @@ router.get("/getData/:deviceID", function (req, res) {
         });
     }
     catch (ex) {
+        console.log(ex.message);
         res.status(401).json({ success: false, message: "Invalid JWT" });
     }
 });
