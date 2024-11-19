@@ -1,6 +1,9 @@
 var express = require('express');
 var router = express.Router();
 var Reading = require("../models/reading");
+const jwt = require("jwt-simple");
+const bcrypt = require("bcryptjs");
+const fs = require('fs');
 
 // example of authentication
 // register a new patient
