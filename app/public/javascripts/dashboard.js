@@ -2,7 +2,7 @@ $(getDeviceData);
 
 function getDeviceData() {
     $.ajax({
-        url: 'http://ec2-3-142-153-62.us-east-2.compute.amazonaws.com:3000/readings/getData?deviceID=e00fce6884202fbdd742846c',
+        url: '/readings/getData?deviceID=e00fce6884202fbdd742846c',
         method: 'GET',
         dataType: 'json'
     })
