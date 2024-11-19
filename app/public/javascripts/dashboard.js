@@ -1,10 +1,17 @@
-$(getDeviceData);
+// $(getDeviceData);
 $(addDeviceForm);
 $(getDevices);
+$(document).ready(function () {
+    $('#deviceDropdown').append('<option value="" disabled selected>Select device</option>');
 
-function getDeviceData() {
+    $(document).on('change', '#deviceDropdown', function () {
+        getDeviceData($(this).val());
+    });
+});
+
+function getDeviceData(deviceID) {
     $.ajax({
-        url: '/readings/getData/e00fce6884202fbdd742846c',
+        url: `/readings/getData/${deviceID}`,
         method: 'GET',
         headers: { 'x-auth' : window.localStorage.getItem("token") },
         dataType: 'json'
@@ -27,7 +34,9 @@ function getDevices() {
     .done(function (data) {
         data.devices.forEach((device) => {
             $('#devices').append(device);
+            $('#deviceDropdown').append(`<option value=${device}>${device}</option>`);
         });
+
         // $('#devices').html(JSON.stringify(data, null, 2));
     })
     .fail(function (jqXHR, textStatus, errorThrown) {
