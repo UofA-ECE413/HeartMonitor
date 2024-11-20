@@ -62,6 +62,7 @@ void setup() {
 
 // Function to gather valid readings
 bool gatherValidReadings() {
+    Serial.println("Gathering valid readings");
     while (particleSensor.available()) {
         redBuffer[validReadCount] = particleSensor.getRed();
         irBuffer[validReadCount] = particleSensor.getIR();
@@ -86,6 +87,7 @@ bool gatherValidReadings() {
 
 // Function to calculate averages and publish metrics
 void calculateAndPublishMetrics() {
+    Serial.println("Calculating and publishing metrics");
     float avgHeartRate = totalHeartRate / validReadCount;
     float avgSpO2 = totalSpO2 / validReadCount;
 
@@ -102,6 +104,7 @@ void calculateAndPublishMetrics() {
 
 // Function to reset the state machine
 void resetState() {
+    Serial.println("Resetting state");
     currentState = IDLE;
     stateStartTime = millis();
     validReadCount = 0;
@@ -116,6 +119,7 @@ void loop() {
 
     switch (currentState) {
         case IDLE:
+            Serial.println("Idle");
             // Wait for the 30-minute timer
             if (currentTime - stateStartTime >= IDLE_DURATION) {
                 currentState = FLASHING;
@@ -125,6 +129,7 @@ void loop() {
             break;
 
         case FLASHING:
+            Serial.println("Flashing LED");
             // Flash LED to prompt user
             if (currentTime - flashTimer >= FLASH_INTERVAL) {
                 digitalWrite(ledPin, !digitalRead(ledPin)); // Toggle LED
@@ -140,6 +145,8 @@ void loop() {
             break;
 
         case WAITING_FOR_READING:
+            Serial.println("Waiting for reading");
+
             if (gatherValidReadings()) {
                 calculateAndPublishMetrics();
                 resetState();
