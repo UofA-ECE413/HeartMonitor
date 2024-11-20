@@ -8,7 +8,7 @@ $(function (){
         headers: { 'x-auth' : window.localStorage.getItem("token") },
         dataType: 'json'
     })
-    .done(function (data, textStatus, jqXHR) {
+    .done(function (data) {
         $('#rxData').html(JSON.stringify(data, null, 2));
     })
     .fail(function (jqXHR, textStatus, errorThrown) {

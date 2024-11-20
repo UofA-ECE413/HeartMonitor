@@ -83,3 +83,8 @@ button:hover {
 .message-box textarea {
     height: 200px;
 }
+
+#errorMsg {
+    color: red;
+    padding-bottom: 15px;
+}

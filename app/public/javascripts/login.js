@@ -1,7 +1,8 @@
 // public/javascripts/login.js
 function login() {
+    let email = $('#email').val();
     let txdata = {
-        email: $('#email').val(),
+        email: email,
         password: $('#password').val()
     };
     $.ajax({
@@ -13,6 +14,7 @@ function login() {
     })
     .done(function (data, textStatus, jqXHR) {
         localStorage.setItem("token", data.token);
+        localStorage.setItem("email", email);
         window.location.replace("account.html");
     })
     .fail(function (jqXHR, textStatus, errorThrown) {

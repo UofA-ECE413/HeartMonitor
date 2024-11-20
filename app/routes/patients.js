@@ -14,7 +14,6 @@ const secret = fs.readFileSync(__dirname + '/../keys/jwtkey').toString();
 // example of authentication
 // register a new patient
 
-// please fiil in the blanks
 // see javascript/signup.js for ajax call
 // see Figure 9.3.5: Node.js project uses token-based authentication and password hashing with bcryptjs on zybooks
 
@@ -42,9 +41,7 @@ router.post('/signUp', function (req, res) {
     });
 });
 
-// please fill in the blanks
 // see javascript/login.js for ajax call
-// see Figure 9.3.5: Node.js project uses token-based authentication and password hashing with bcryptjs on zybooks
 
 router.post("/logIn", function (req, res) {
     if (!req.body.email || !req.body.password) {
@@ -59,7 +56,7 @@ router.post("/logIn", function (req, res) {
         }
         else {
             if (bcrypt.compareSync(req.body.password, patient.passwordHash)) { 
-                const token = jwt.encode({ username: patient.username }, secret);
+                const token = jwt.encode({ email: patient.email }, secret);
                 //update user's last access time
                 patient.lastAccess = new Date();
                 patient.save().then((patient) => {
@@ -78,9 +75,7 @@ router.post("/logIn", function (req, res) {
     });
 });
 
-// please fill in the blanks
 // see javascript/account.js for ajax call
-// see Figure 9.3.5: Node.js project uses token-based authentication and password hashing with bcryptjs on zybooks
 
 router.get("/status", function (req, res) { 
     // See if the X-Auth header is set
@@ -92,8 +87,8 @@ router.get("/status", function (req, res) {
     try {
         const decoded = jwt.decode(token, secret);
         // Send back email and last access
-        Patient.find({ email: decoded.email }, "email lastAccess").then( function (users) {
-            res.status(200).json(users);
+        Patient.findOne({ email: decoded.email }).then((user) => {
+            res.status(200).json({email: user.email, lastAccess: user.lastAccess});
         }).catch((err) => {
             res.status(400).json({ success: false, message: "Error contacting DB. Please contact support." });
         });
