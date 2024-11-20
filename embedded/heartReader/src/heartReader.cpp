@@ -1,286 +1,154 @@
-/*
-  Optical Heart Rate Detection (PBA Algorithm) using the MAX30105 Breakout
-  By: Nathan Seidle @ SparkFun Electronics
-  Date: October 2nd, 2016
-  https://github.com/sparkfun/MAX30105_Breakout
-
-  This is a demo to show the reading of heart rate or beats per minute (BPM) using
-  a Penpheral Beat Amplitude (PBA) algorithm.
-
-  It is best to attach the sensor to your finger using a rubber band or other tightening
-  device. Humans are generally bad at applying constant pressure to a thing. When you
-  press your finger against the sensor it varies enough to cause the blood in your
-  finger to flow differently which causes the sensor readings to go wonky.
-
-  Hardware Connections (Breakoutboard to Arduino):
-  -5V = 5V (3.3V is allowed)
-  -GND = GND
-  -SDA = A4 (or SDA)
-  -SCL = A5 (or SCL)
-  -INT = Not connected
-
-  The MAX30105 Breakout can handle 5V or 3.3V I2C logic. We recommend powering the board with 5V
-  but it will also run at 3.3V.
-*/
-
-/************************************************************************************************
-////////////////////////////////////////////////////////////////////////////////////////////////*
-                                                                                                *
-// BPM CODE                                                                                     *
-                                                                                                *
-////////////////////////////////////////////////////////////////////////////////////////////////
-*************************************************************************************************/
-
-// #include <Wire.h>
-// #include "../lib/max30105/src/max30105.h"
-
-// #include "../lib/max30105/src/heartRate.h"
-
-// MAX30105 particleSensor;
-
-// const byte RATE_SIZE = 4; //Increase this for more averaging. 4 is good.
-// byte rates[RATE_SIZE]; //Array of heart rates
-// byte rateSpot = 0;
-// long lastBeat = 0; //Time at which the last beat occurred
-
-// float beatsPerMinute;
-// int beatAvg;
-
-// void setup()
-// {
-//   Serial.begin(115200);
-//   Serial.println("Initializing...");
-
-//   // Initialize sensor
-//   if (!particleSensor.begin(/*Wire, I2C_SPEED_FAST*/)) //Use default I2C port, 400kHz speed
-//   {
-//     Serial.println("MAX30105 was not found. Please check wiring/power. ");
-//     while (1);
-//   }
-//   Serial.println("Place your index finger on the sensor with steady pressure.");
-
-//   particleSensor.setup(); //Configure sensor with default settings
-//   particleSensor.setPulseAmplitudeRed(0x0A); //Turn Red LED to low to indicate sensor is running
-//   particleSensor.setPulseAmplitudeGreen(0); //Turn off Green LED
-// }
-
-// void loop()
-// {
-//   long irValue = particleSensor.getIR();
-
-//   if (checkForBeat(irValue) == true)
-//   {
-//     //We sensed a beat!
-//     long delta = millis() - lastBeat;
-//     lastBeat = millis();
-
-//     beatsPerMinute = 60 / (delta / 1000.0);
-
-//     if (beatsPerMinute < 255 && beatsPerMinute > 20)
-//     {
-//       rates[rateSpot++] = (byte)beatsPerMinute; //Store this reading in the array
-//       rateSpot %= RATE_SIZE; //Wrap variable
-
-//       //Take average of readings
-//       beatAvg = 0;
-//       for (byte x = 0 ; x < RATE_SIZE ; x++)
-//         beatAvg += rates[x];
-//       beatAvg /= RATE_SIZE;
-//     }
-//   }
-
-//   Serial.print("IR=");
-//   Serial.print(irValue);
-//   Serial.print(", BPM=");
-//   Serial.print(beatsPerMinute);
-//   Serial.print(", Avg BPM=");
-//   Serial.print(beatAvg);
-
-//   if (irValue < 50000)
-//     Serial.print(" No finger?");
-
-//   Serial.println();
-// }
-
-
-/************************************************************************************************
-////////////////////////////////////////////////////////////////////////////////////////////////*
-                                                                                                *
-// END BPM CODE                                                                                 *
-                                                                                                *
-////////////////////////////////////////////////////////////////////////////////////////////////*
-*************************************************************************************************/
-
-/************************************************************************************************
-////////////////////////////////////////////////////////////////////////////////////////////////*
-                                                                                                *
-// SPO2 CODE                                                                                    *
-                                                                                                *
-////////////////////////////////////////////////////////////////////////////////////////////////*
-*************************************************************************************************/
-
-/*
-  Optical SP02 Detection (SPK Algorithm) using the MAX30105 Breakout
-  By: Nathan Seidle @ SparkFun Electronics
-  Date: October 19th, 2016
-  https://github.com/sparkfun/MAX30105_Breakout
-
-  This demo shows heart rate and SPO2 levels.
-
-  It is best to attach the sensor to your finger using a rubber band or other tightening 
-  device. Humans are generally bad at applying constant pressure to a thing. When you 
-  press your finger against the sensor it varies enough to cause the blood in your 
-  finger to flow differently which causes the sensor readings to go wonky.
-
-  This example is based on MAXREFDES117 and RD117_LILYPAD.ino from Maxim. Their example
-  was modified to work with the SparkFun MAX30105 library and to compile under Arduino 1.6.11
-  Please see license file for more info.
-
-  Hardware Connections (Breakoutboard to Arduino):
-  -5V = 5V (3.3V is allowed)
-  -GND = GND
-  -SDA = A4 (or SDA)
-  -SCL = A5 (or SCL)
-  -INT = Not connected
- 
-  The MAX30105 Breakout can handle 5V or 3.3V I2C logic. We recommend powering the board with 5V
-  but it will also run at 3.3V.
-*/
-
 #include <Wire.h>
 #include "../lib/max30105/src/max30105.h"
 #include "../lib/max30105/src/spo2_algorithm.h"
 
+// State Machine Definitions
+enum State {
+    IDLE,
+    FLASHING,
+    WAITING_FOR_READING
+};
+
+State currentState = IDLE;
+unsigned long stateStartTime = 0;
+unsigned long flashTimer = 0;
+
+// // Timing Constants
+// const unsigned long IDLE_DURATION = 30 * 60 * 1000;  // 30 minutes
+// const unsigned long FLASHING_DURATION = 5 * 60 * 1000;  // 5 minutes
+// const unsigned long FLASH_INTERVAL = 500;  // 500ms for LED flashing
+
+const unsigned long IDLE_DURATION = 3 * 60 * 1000;  // 3 minutes
+const unsigned long FLASHING_DURATION = 1 * 60 * 1000;  // 1 minutes
+const unsigned long FLASH_INTERVAL = 500;  // 500ms for LED flashing
+
+// Pin Definitions
+const int ledPin = D7;  // Built-in LED
+
+// MAX30105 Sensor Setup
 MAX30105 particleSensor;
 
 #define MAX_BRIGHTNESS 255
+uint32_t irBuffer[100];  // Infrared LED sensor data
+uint32_t redBuffer[100]; // Red LED sensor data
+int32_t spo2;            // SPO2 value
+int8_t validSPO2;        // Validity of SPO2 calculation
+int32_t heartRate;       // Heart rate value
+int8_t validHeartRate;   // Validity of heart rate calculation
 
-#if defined(__AVR_ATmega328P__) || defined(__AVR_ATmega168__)
-//Arduino Uno doesn't have enough SRAM to store 100 samples of IR led data and red led data in 32-bit format
-//To solve this problem, 16-bit MSB of the sampled data will be truncated. Samples become 16-bit data.
-uint16_t irBuffer[100]; //infrared LED sensor data
-uint16_t redBuffer[100];  //red LED sensor data
-#else
-uint32_t irBuffer[100]; //infrared LED sensor data
-uint32_t redBuffer[100];  //red LED sensor data
-#endif
+const byte READ_COUNT_THRESHOLD = 10; // Minimum valid readings required
+byte validReadCount = 0;
+float totalHeartRate = 0;
+float totalSpO2 = 0;
 
-int32_t bufferLength; //data length
-int32_t spo2; //SPO2 value
-int8_t validSPO2; //indicator to show if the SPO2 calculation is valid
-int32_t heartRate; //heart rate value
-int8_t validHeartRate; //indicator to show if the heart rate calculation is valid
+// Setup function
+void setup() {
+    Serial.begin(115200);
 
-byte pulseLED = 11; //Must be on PWM pin
-byte readLED = 13; //Blinks with each data read
+    pinMode(ledPin, OUTPUT);
+    digitalWrite(ledPin, LOW);
 
-void setup()
-{
-  Serial.begin(115200); // initialize serial communication at 115200 bits per second:
-
-  pinMode(pulseLED, OUTPUT);
-  pinMode(readLED, OUTPUT);
-
-  // Initialize sensor
-  if (!particleSensor.begin(/*Wire, I2C_SPEED_FAST*/)) //Use default I2C port, 400kHz speed
-  {
-    Serial.println(F("MAX30105 was not found. Please check wiring/power."));
-    while (1);
-  }
-
-  Serial.println(F("Attach sensor to finger with rubber band. Press any key to start conversion"));
-  //while (Serial.available() == 0) ; //wait until user presses a key
-  Serial.print(F("after while"));
-
-  Serial.read();
-  Serial.print(F("after read"));
-
-  byte ledBrightness = 60; //Options: 0=Off to 255=50mA
-  byte sampleAverage = 4; //Options: 1, 2, 4, 8, 16, 32
-  byte ledMode = 2; //Options: 1 = Red only, 2 = Red + IR, 3 = Red + IR + Green
-  byte sampleRate = 100; //Options: 50, 100, 200, 400, 800, 1000, 1600, 3200
-  int pulseWidth = 411; //Options: 69, 118, 215, 411
-  int adcRange = 4096; //Options: 2048, 4096, 8192, 16384
-
-  particleSensor.setup(ledBrightness, sampleAverage, ledMode, sampleRate, pulseWidth, adcRange); //Configure sensor with these settings
-}
-
-void loop()
-{
-  Serial.print(F("in loop"));
-  bufferLength = 100; //buffer length of 100 stores 4 seconds of samples running at 25sps
-
-  //read the first 100 samples, and determine the signal range
-  for (byte i = 0 ; i < bufferLength ; i++)
-  {
-    while (particleSensor.available() == false) //do we have new data?
-      particleSensor.check(); //Check the sensor for new data
-
-    redBuffer[i] = particleSensor.getRed();
-    irBuffer[i] = particleSensor.getIR();
-    particleSensor.nextSample(); //We're finished with this sample so move to next sample
-
-    Serial.print(F("red="));
-    Serial.print(redBuffer[i], DEC);
-    Serial.print(F(", ir="));
-    Serial.println(irBuffer[i], DEC);
-  }
-
-  //calculate heart rate and SpO2 after first 100 samples (first 4 seconds of samples)
-  maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, &spo2, &validSPO2, &heartRate, &validHeartRate);
-
-  //Continuously taking samples from MAX30102.  Heart rate and SpO2 are calculated every 1 second
-  while (1)
-  {
-    //dumping the first 25 sets of samples in the memory and shift the last 75 sets of samples to the top
-    for (byte i = 25; i < 100; i++)
-    {
-      redBuffer[i - 25] = redBuffer[i];
-      irBuffer[i - 25] = irBuffer[i];
+    if (!particleSensor.begin()) {
+        Serial.println("MAX30105 was not found. Please check wiring/power.");
+        while (1);
     }
 
-    //take 25 sets of samples before calculating the heart rate.
-    for (byte i = 75; i < 100; i++)
-    {
-      while (particleSensor.available() == false) //do we have new data?
-        particleSensor.check(); //Check the sensor for new data
-
-      digitalWrite(readLED, !digitalRead(readLED)); //Blink onboard LED with every data read
-
-      redBuffer[i] = particleSensor.getRed();
-      irBuffer[i] = particleSensor.getIR();
-      particleSensor.nextSample(); //We're finished with this sample so move to next sample
-
-      //send samples and calculation result to terminal program through UART
-      Serial.print(F("red="));
-      Serial.print(redBuffer[i], DEC);
-      Serial.print(F(", ir="));
-      Serial.print(irBuffer[i], DEC);
-
-      Serial.print(F(", HR="));
-      Serial.print(heartRate, DEC);
-
-      Serial.print(F(", HRvalid="));
-      Serial.print(validHeartRate, DEC);
-
-      Serial.print(F(", SPO2="));
-      Serial.print(spo2, DEC);
-
-      Serial.print(F(", SPO2Valid="));
-      Serial.println(validSPO2, DEC);
-    }
-
-    //After gathering 25 new samples recalculate HR and SP02
-    maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, &spo2, &validSPO2, &heartRate, &validHeartRate);
-  }
+    // Sensor configuration
+    particleSensor.setup(60, 4, 2, 100, 411, 4096); // Configure the sensor
+    Serial.println("Place your finger on the sensor.");
+    currentState = IDLE;
+    stateStartTime = millis();
 }
 
-/************************************************************************************************
-////////////////////////////////////////////////////////////////////////////////////////////////*
-                                                                                                *
-// END SPO2 CODE                                                                                *
-                                                                                                *
-////////////////////////////////////////////////////////////////////////////////////////////////*
-*************************************************************************************************/
+// Function to gather valid readings
+bool gatherValidReadings() {
+    while (particleSensor.available()) {
+        redBuffer[validReadCount] = particleSensor.getRed();
+        irBuffer[validReadCount] = particleSensor.getIR();
+        particleSensor.nextSample(); // Move to next sample
 
+        maxim_heart_rate_and_oxygen_saturation(irBuffer, validReadCount + 1, redBuffer,
+                                               &spo2, &validSPO2, &heartRate, &validHeartRate);
 
+        if (validHeartRate && validSPO2) {
+            totalHeartRate += heartRate;
+            totalSpO2 += spo2;
+            validReadCount++;
+
+            // Check if sufficient valid readings are collected
+            if (validReadCount >= READ_COUNT_THRESHOLD) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+// Function to calculate averages and publish metrics
+void calculateAndPublishMetrics() {
+    float avgHeartRate = totalHeartRate / validReadCount;
+    float avgSpO2 = totalSpO2 / validReadCount;
+
+    String eventData = String::format("{\"avgHeartRate\": %.2f, \"avgSpO2\": %.2f}", avgHeartRate, avgSpO2);
+    Particle.publish("HealthMetrics", eventData, PRIVATE);
+
+    Serial.println(eventData);
+
+    // Reset accumulation variables
+    totalHeartRate = 0;
+    totalSpO2 = 0;
+    validReadCount = 0;
+}
+
+// Function to reset the state machine
+void resetState() {
+    currentState = IDLE;
+    stateStartTime = millis();
+    validReadCount = 0;
+    totalHeartRate = 0;
+    totalSpO2 = 0;
+    digitalWrite(ledPin, LOW); // Ensure LED is off
+}
+
+// Main loop
+void loop() {
+    unsigned long currentTime = millis();
+
+    switch (currentState) {
+        case IDLE:
+            // Wait for the 30-minute timer
+            if (currentTime - stateStartTime >= IDLE_DURATION) {
+                currentState = FLASHING;
+                stateStartTime = currentTime;
+                flashTimer = currentTime;
+            }
+            break;
+
+        case FLASHING:
+            // Flash LED to prompt user
+            if (currentTime - flashTimer >= FLASH_INTERVAL) {
+                digitalWrite(ledPin, !digitalRead(ledPin)); // Toggle LED
+                flashTimer = currentTime;
+            }
+
+            // Transition to WAITING_FOR_READING
+            if (currentTime - stateStartTime >= FLASHING_DURATION) {
+                currentState = WAITING_FOR_READING;
+                stateStartTime = currentTime;
+                digitalWrite(ledPin, LOW); // Turn off LED
+            }
+            break;
+
+        case WAITING_FOR_READING:
+            if (gatherValidReadings()) {
+                calculateAndPublishMetrics();
+                resetState();
+            }
+
+            // Timeout if no valid readings within 5 minutes
+            if (currentTime - stateStartTime >= FLASHING_DURATION) {
+                resetState();
+            }
+            break;
+    }
+}
