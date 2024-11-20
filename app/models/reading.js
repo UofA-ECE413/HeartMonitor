@@ -5,6 +5,7 @@ const readingSchema = new db.Schema({
     ir: String,
     heartRate: String,
     spo2: String,
+    deviceID: String,
  });
 
 const Reading = new db.model("Reading", readingSchema); 
