@@ -21,6 +21,7 @@ router.post('/addData', function (req, res) {
         return;
     }
     const newReading = new Reading ({
+        time: new Date(),
         heartRate: data.heartRate,
         spo2: data.spo2,
         deviceID: req.body.coreid
