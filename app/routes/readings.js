@@ -16,12 +16,11 @@ const secret = fs.readFileSync(__dirname + '/../keys/jwtkey').toString();
 
 router.post('/addData', function (req, res) {
     let data = JSON.parse(req.body.data);
-    if (!data.ir || !data.heartRate || !data.spo2) {
+    if (!data.heartRate || !data.spo2) {
         res.status(401).json({ error: "Missing data" });
         return;
     }
     const newReading = new Reading ({
-        ir: data.ir,
         heartRate: data.heartRate,
         spo2: data.spo2,
         deviceID: req.body.coreid

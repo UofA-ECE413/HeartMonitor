@@ -17,9 +17,9 @@ function getDeviceData(deviceID) {
         dataType: 'json'
     })
     .done(function (data) {
-        $('#readings').html(`<tr><th>Time</th><th>IR</th><th>Heart Rate</th><th>spO2</th></tr>`);
+        $('#readings').html(`<tr><th>Time</th><th>Heart Rate</th><th>spO2</th></tr>`);
         data.forEach((entry) => {
-            $('#readings').append(`<tr><td>${entry.time}</td><td>${entry.ir}</td><td>${entry.heartRate}</td><td>${entry.spo2}</td></tr>`);
+            $('#readings').append(`<tr><td>${entry.time}</td><td>${entry.heartRate}</td><td>${entry.spo2}</td></tr>`);
         });
     })
     .fail(function (jqXHR, textStatus, errorThrown) {
