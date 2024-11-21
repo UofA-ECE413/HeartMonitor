@@ -29,8 +29,8 @@ const int ledPin = D7;  // Built-in LED
 MAX30105 particleSensor;
 
 #define MAX_BRIGHTNESS 255
-uint32_t irBuffer[100];  // Infrared LED sensor data
-uint32_t redBuffer[100]; // Red LED sensor data
+uint32_t irBuffer[200];  // Infrared LED sensor data
+uint32_t redBuffer[200]; // Red LED sensor data
 int32_t spo2;            // SPO2 value
 int8_t validSPO2;        // Validity of SPO2 calculation
 int32_t heartRate;       // Heart rate value
@@ -85,7 +85,7 @@ bool gatherValidReadings() {
     redBuffer[i] = particleSensor.getRed();
     irBuffer[i] = particleSensor.getIR();
     particleSensor.nextSample(); //We're finished with this sample so move to next sample
-
+    Serial.print(i, DEC);
     Serial.print(F("red="));
     Serial.print(redBuffer[i], DEC);
     Serial.print(F(", ir="));
@@ -94,7 +94,7 @@ bool gatherValidReadings() {
 
   //calculate heart rate and SpO2 after first 100 samples (first 4 seconds of samples)
   maxim_heart_rate_and_oxygen_saturation(irBuffer, 100, redBuffer, &spo2, &validSPO2, &heartRate, &validHeartRate);
-    while(millis() - stateStartTime >= FLASHING_DURATION ){
+    while(millis() - stateStartTime <= FLASHING_DURATION){
       //dumping the first 25 sets of samples in the memory and shift the last 75 sets of samples to the top
     for (byte i = 25; i < 100; i++)
     {
@@ -130,8 +130,6 @@ bool gatherValidReadings() {
       Serial.print(F(", SPO2Valid="));
       Serial.println(validSPO2, DEC);
     }
-    maxim_heart_rate_and_oxygen_saturation(irBuffer, validReadCount + 1, redBuffer,
-                                               &spo2, &validSPO2, &heartRate, &validHeartRate);
     if (validHeartRate && validSPO2) {
         totalHeartRate += heartRate;
         totalSpO2 += spo2;
@@ -142,6 +140,8 @@ bool gatherValidReadings() {
             return true;
         }
     }
+    maxim_heart_rate_and_oxygen_saturation(irBuffer, validReadCount + 1, redBuffer,
+                                               &spo2, &validSPO2, &heartRate, &validHeartRate);
     }
     return false;
 }
