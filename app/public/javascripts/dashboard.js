@@ -1,6 +1,11 @@
-// $(getDeviceData);
+
+// Register all components of the add device form
 $(addDeviceForm);
+
+// Update devices on dashboard
 $(getDevices);
+
+// Set first/default option to "Select device" (disabled), register change listener
 $(document).ready(function () {
     $('#deviceDropdown').append('<option value="" disabled selected>Select device</option>');
 
@@ -9,6 +14,7 @@ $(document).ready(function () {
     });
 });
 
+// JQuery ajax call to getData endpoint, update dashboard with data from readings database
 function getDeviceData(deviceID) {
     $.ajax({
         url: `/readings/getData/${deviceID}`,
@@ -27,6 +33,8 @@ function getDeviceData(deviceID) {
     });
 }
 
+
+// JQuery ajax call to devices endpoint, add devices to dashboard device list and dropdown menu
 function getDevices() {
     $.ajax({
         url: '/patients/devices',
@@ -39,14 +47,13 @@ function getDevices() {
             $('#devices').append(device);
             $('#deviceDropdown').append(`<option value=${device}>${device}</option>`);
         });
-
-        // $('#devices').html(JSON.stringify(data, null, 2));
     })
     .fail(function (jqXHR, textStatus, errorThrown) {
         window.location.replace("login.html");
     });
 }
 
+// Register components of add device form
 function addDeviceForm() {
     // Modal functionality
     const modal = $("#addDeviceForm");
@@ -64,18 +71,17 @@ function addDeviceForm() {
         modal.css("display", "none");
     });
 
-    // Add Device Functionality
+    // Add Device 
     submitDevice.on("click", function () {
         const deviceId = $("#deviceId").val().trim();
 
         if (deviceId) {
-            // Example call to add device endpoint
             $.ajax({
                 url: "/patients/addDevice",
                 method: "POST",
                 contentType: "application/json",
                 headers: { 'x-auth' : window.localStorage.getItem("token") },
-                data: JSON.stringify({ deviceIDs: [deviceId] }),
+                data: JSON.stringify({ deviceID: deviceId }),
                 success: function (response) {
                     alert("Device added successfully!");
                     getDevices();

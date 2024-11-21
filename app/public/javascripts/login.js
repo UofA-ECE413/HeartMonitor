@@ -1,4 +1,6 @@
 // public/javascripts/login.js
+
+// JQuery ajax call to login endpoint
 function login() {
     let email = $('#email').val();
     let txdata = {
@@ -22,6 +24,7 @@ function login() {
     });
 }
 
+// Register LogIn button
 $(function () {
     $('#btnLogIn').click(login);
 });

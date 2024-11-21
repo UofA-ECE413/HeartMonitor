@@ -158,8 +158,8 @@ router.post("/updatePassword", function (req, res) {
 });
 
 router.post("/addDevice", function (req, res) {
-    if (!req.body.deviceIDs || !Array.isArray(req.body.deviceIDs)) {
-        return res.status(400).json({ success: false, msg: "Invalid or missing deviceIDs" });
+    if (!req.body.deviceID) {
+        return res.status(400).json({ success: false, msg: "Invalid or missing deviceID" });
     }
 
     if (!req.headers["x-auth"]) {
@@ -176,7 +176,7 @@ router.post("/addDevice", function (req, res) {
             }
 
             // Add unique deviceIDs to the patient's list
-            patient.deviceIDs = Array.from(new Set([...patient.deviceIDs, ...req.body.deviceIDs]));
+            patient.deviceIDs = Array.from(new Set([...patient.deviceIDs, ...req.body.deviceID]));
 
             patient.save().then(() => {
                 res.status(200).json({ success: true, msg: "Devices added successfully", deviceIDs: patient.deviceIDs });
