@@ -123,4 +123,20 @@ function addDeviceForm() {
     });
 }
 
+$(document).ready(function () {
+    $('#clean').click(function () {
+      const readingId = 'e00fce6884202fbdd742846c'; // The ID to delete
+      $.ajax({
+        url: `/readings/api/readings/${readingId}`,
+        type: 'DELETE',
+        success: function (response) {
+          $('#response').text(`Success: ${response.deletedCount} readings deleted.`);
+        },
+        error: function (xhr) {
+          $('#response').text(`Error: ${xhr.responseJSON?.error || 'An unknown error occurred'}`);
+        }
+      });
+    });
+  });
+
 

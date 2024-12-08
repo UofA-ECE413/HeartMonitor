@@ -58,8 +58,15 @@ router.get('/getData/:deviceID', function (req, res) {
     }
 });
 
-router.post("/clean", function(req, res) {
-    Reading.deleteMany({deviceID: 'e00fce6884202fbdd742846c'});
-})
+app.delete('/api/readings/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+      const result = await Reading.deleteMany({ id });
+      res.status(200).json({ message: 'Readings deleted', deletedCount: result.deletedCount });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Failed to delete readings' });
+    }
+  });
 
 module.exports = router;
