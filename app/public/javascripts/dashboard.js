@@ -10,8 +10,10 @@ $(document).ready(function () {
     $('#deviceDropdown').append('<option value="" disabled selected>Select device</option>');
 
     $(document).on('change', '#deviceDropdown', function () {
-        getDeviceData($(this).val());
+        getDeviceData($(this).find(':selected').attr('id').split("-")[0]);
     });
+
+    $("#deviceFormModal").validate();
 });
 
 // JQuery ajax call to getData endpoint, update dashboard with data from readings database
@@ -44,42 +46,35 @@ function getDevices() {
     })
     .done(function (data) {
         data.devices.forEach((device) => {
-            $('#devices').append(device);
-            $('#deviceDropdown').append(`<option value=${device}>${device}</option>`);
+            $('#devices').append(`<p>${device.name}</p><button id=${device.id} class="button" onclick="manageDeviceForm(this)">Manage Device</button>`);
+            $('#deviceDropdown').append(`<option value=${device.name} id="${device.id}-dropdown">${device.name}</option>`);
         });
     })
     .fail(function (jqXHR, textStatus, errorThrown) {
         window.location.replace("login.html");
     });
-
-    $("#clean").on("click", function() {
-        $.ajax({
-            url: "/readings/clean",
-            method: "POST",
-            contentType: "application/json",
-            headers: { 'x-auth' : window.localStorage.getItem("token") },
-            data: JSON.stringify({ deviceID: deviceId }),
-            success: function (response) {
-                alert("Cleaned successfully!");
-            },
-            error: function (err) {
-                console.error("Error cleaning:", err);
-                alert("Error cleaning. Please try again.");
-            },
-        });
-    })
 }
 
 // Register components of add device form
 function addDeviceForm() {
     // Modal functionality
-    const modal = $("#addDeviceForm");
+    const modal = $("#deviceFormModal");
     const addDeviceBtn = $("#addDeviceBtn");
     const closeModal = $("#closeForm");
     const submitDevice = $("#submitDevice");
+    const formTitle = $("#form-title");
 
     // Open the modal
     addDeviceBtn.on("click", function () {
+        formTitle.text("Add a New Device");
+        $("#submitDevice").css("display", "block");
+        $("#deleteDevice").css("display", "none");
+        $("#updateDevice").css("display", "none");
+
+        $("#deviceId").val("").prop("disabled", false); 
+        $("#deviceName").val("");
+        $("#frequency").val("30");
+
         modal.css("display", "flex");
     });
 
@@ -90,15 +85,21 @@ function addDeviceForm() {
 
     // Add Device 
     submitDevice.on("click", function () {
+        const deviceName = $("#deviceName").val().trim();
         const deviceId = $("#deviceId").val().trim();
+        const frequency = $("#frequency").val();
 
-        if (deviceId) {
+        if ($("#deviceForm").valid()) {
             $.ajax({
                 url: "/patients/addDevice",
                 method: "POST",
                 contentType: "application/json",
                 headers: { 'x-auth' : window.localStorage.getItem("token") },
-                data: JSON.stringify({ deviceID: deviceId }),
+                data: JSON.stringify({ device: {
+                    name: deviceName,
+                    id: deviceId,
+                    frequency: frequency,
+                }}),
                 success: function (response) {
                     alert("Device added successfully!");
                     getDevices();
@@ -110,9 +111,10 @@ function addDeviceForm() {
                     alert("Failed to add device. Please try again.");
                 },
             });
-        } else {
-            alert("Please enter a valid Device ID.");
-        }
+        } 
+        // else {
+        //     alert("Please enter a valid Device ID.");
+        // }
     });
 
     // Close modal on outside click
@@ -123,20 +125,97 @@ function addDeviceForm() {
     });
 }
 
-$(document).ready(function () {
-    $('#clean').click(function () {
-      const readingId = 'e00fce6884202fbdd742846c'; // The ID to delete
-      $.ajax({
-        url: `/readings/api/readings/${readingId}`,
-        type: 'DELETE',
-        success: function (response) {
-          $('#response').text(`Success: ${response.deletedCount} readings deleted.`);
-        },
-        error: function (xhr) {
-          $('#response').text(`Error: ${xhr.responseJSON?.error || 'An unknown error occurred'}`);
-        }
-      });
+// Register components of add device form
+function manageDeviceForm(e) {
+    // Modal functionality
+    console.log("MADE IT");
+    const modal = $("#deviceFormModal");
+    const closeModal = $("#closeForm");
+    const formTitle = $("#form-title");
+
+    formTitle.text("Manage Device");
+    $("#submitDevice").css("display", "none");
+    $("#deleteDevice").css("display", "block");
+    $("#updateDevice").css("display", "block");
+
+    let deviceID = e.id.split("-")[0];
+
+    $.ajax({
+        url: `/patients/deviceInfo/${deviceID}`,
+        method: 'GET',
+        headers: { 'x-auth' : window.localStorage.getItem("token") },
+        dataType: 'json'
+    })
+    .done(function (data) {
+        $("#deviceName").val(data.device.name);
+        $("#deviceId").val(data.device.id).prop("disabled", true);
+        $("#frequency").val(data.device.frequency);
+    })
+    .fail(function (jqXHR, textStatus, errorThrown) {
+        alert("Error fetching device details");
     });
-  });
+
+    modal.css("display", "flex");
+
+    // Close the modal
+    closeModal.on("click", function () {
+        modal.css("display", "none");
+    });
+
+    $('#deleteDevice').on("click", function () {
+        $.ajax({
+            url: `/patients/deleteDevice/${deviceID}`, 
+            method: 'DELETE',
+            headers: { 'x-auth': window.localStorage.getItem("token") },
+            dataType: 'json'
+        })
+        .done(function (data) {
+            alert("Device deleted successfully.");
+            location.reload();
+        })
+        .fail(function (jqXHR, textStatus, errorThrown) {
+            if (jqXHR.status === 401) {
+                alert("Unauthorized access. Redirecting to login.");
+                window.location.replace("login.html");
+            } else if (jqXHR.status === 404) {
+                alert("Device or patient not found.");
+            } else {
+                alert("An error occurred. Please try again.");
+            }
+        });
+    })
+
+    $("#updateDevice").on("click", function() {
+        $.ajax({
+            url: `/patients/updateDevice/${deviceID}`,
+            method: "POST",
+            contentType: "application/json",
+            headers: { 'x-auth' : window.localStorage.getItem("token") },
+            data: JSON.stringify({ 
+                name: $("#deviceName").val(),
+                frequency: Number($("#frequency").val()),
+            }),
+            success: function (response) {
+                alert("Device updated successfully!");
+                location.reload();
+                modal.hide();
+            },
+            error: function (err) {
+                console.error("Error updating device:", err);
+                alert("Failed to update device. Please try again.");
+            },
+        });
+    })
+
+    
+
+    // Close modal on outside click
+    $(window).on("click", function (e) {
+        if ($(e.target).is(modal)) {
+            modal.hide();
+        }
+    });
+}
+
 
 

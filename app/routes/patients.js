@@ -109,7 +109,7 @@ router.get("/devices", function (req, res) {
         const decoded = jwt.decode(token, secret);
         // Send back email and last access
         Patient.findOne({ email: decoded.email }).then((user) => {
-            res.status(200).json({devices: user.deviceIDs});
+            res.status(200).json({devices: user.devices});
         }).catch((err) => {
             res.status(400).json({ success: false, message: "Error contacting DB. Please contact support." });
         });
@@ -158,8 +158,8 @@ router.post("/updatePassword", function (req, res) {
 });
 
 router.post("/addDevice", function (req, res) {
-    if (!req.body.deviceID) {
-        return res.status(400).json({ success: false, msg: "Invalid or missing deviceID" });
+    if (!req.body.device) {
+        return res.status(400).json({ success: false, msg: "Invalid or missing device" });
     }
 
     if (!req.headers["x-auth"]) {
@@ -174,12 +174,15 @@ router.post("/addDevice", function (req, res) {
             if (!patient) {
                 return res.status(404).json({ success: false, msg: "Patient not found" });
             }
+            console.log("FOUND PATIENT: " + patient)
 
             // Add unique deviceIDs to the patient's list
-            patient.deviceIDs = Array.from(new Set([...patient.deviceIDs, ...req.body.deviceID]));
+            patient.devices.push(req.body.device);
+
+            console.log("PATIENT: " + patient);
 
             patient.save().then(() => {
-                res.status(200).json({ success: true, msg: "Devices added successfully", deviceIDs: patient.deviceIDs });
+                res.status(200).json({ success: true, msg: "Devices added successfully", devices: patient.devices });
             }).catch((err) => {
                 res.status(500).json({ success: false, msg: "Failed to add devices", error: err });
             });
@@ -190,6 +193,109 @@ router.post("/addDevice", function (req, res) {
         res.status(401).json({ success: false, msg: "Invalid JWT" });
     }
 });
+
+router.post("/updateDevice/:deviceId", async function (req, res) {
+    const { deviceId } = req.params;
+    const { name, frequency } = req.body;
+
+    console.log("NAME: " + name + ", FREQ: " + frequency);
+
+    if (!req.headers["x-auth"]) {
+        return res.status(401).json({ success: false, msg: "Missing X-Auth header" });
+    }
+
+    const token = req.headers["x-auth"];
+    try {
+        const decoded = jwt.decode(token, secret);
+
+        const updatedPatient = await Patient.findOneAndUpdate(
+            { email: decoded.email, 'devices.id': deviceId },
+            {
+                $set: {
+                    'devices.$.name': name,
+                    'devices.$.frequency': frequency,
+                },
+            },
+            { new: true } 
+        );
+
+        if (!updatedPatient) {
+            return res.status(404).json({ error: 'Patient or device not found' });
+        }
+
+        res.status(200).json({ message: 'Device updated successfully', updatedPatient });
+    } catch (error) {
+        console.error("Error during device update:", error);
+        res.status(500).json({ error: 'Failed to update device' });
+    }
+});
+
+
+router.get("/deviceInfo/:deviceID", function (req, res) {
+    const { deviceID } = req.params;
+
+    if (!req.headers["x-auth"]) {
+        return res.status(401).json({ success: false, msg: "Missing X-Auth header" });
+    }
+
+    const token = req.headers["x-auth"];
+    try {
+        const decoded = jwt.decode(token, secret);
+        Patient.findOne({ email: decoded.email }).then(function (patient) {
+            if (!patient) {
+                return res.status(404).json({ success: false, msg: "Patient not found" });
+            }
+            
+            const device = patient.devices.find((d) => d.id === deviceID.toString());
+            if (!device) {
+                return res.status(404).json({ error: 'Device not found' });
+            }
+
+            res.status(200).json({ device });
+        }).catch((err) => {
+            res.status(500).json({ success: false, msg: "Error accessing database", error: err });
+        });
+    } catch (ex) {
+        res.status(401).json({ success: false, msg: "Invalid JWT" });
+    }
+})
+
+router.delete("/deleteDevice/:deviceID", function (req, res) {
+    const { deviceID } = req.params;
+
+    if (!req.headers["x-auth"]) {
+        return res.status(401).json({ success: false, msg: "Missing X-Auth header" });
+    }
+
+    const token = req.headers["x-auth"];
+    try {
+        const decoded = jwt.decode(token, secret);
+        Patient.findOne({ email: decoded.email }).then(function (patient) {
+            if (!patient) {
+                return res.status(404).json({ success: false, msg: "Patient not found" });
+            }
+
+            // Find and remove the device
+            const deviceIndex = patient.devices.findIndex((d) => d.id === deviceID.toString());
+            if (deviceIndex === -1) {
+                return res.status(404).json({ success: false, msg: "Device not found" });
+            }
+
+            patient.devices.splice(deviceIndex, 1); // Remove the device from the array
+
+            // Save the updated patient document
+            patient.save().then(() => {
+                res.status(200).json({ success: true, msg: "Device deleted successfully" });
+            }).catch((err) => {
+                res.status(500).json({ success: false, msg: "Error saving changes", error: err });
+            });
+        }).catch((err) => {
+            res.status(500).json({ success: false, msg: "Error accessing database", error: err });
+        });
+    } catch (ex) {
+        res.status(401).json({ success: false, msg: "Invalid JWT" });
+    }
+})
 
 
 

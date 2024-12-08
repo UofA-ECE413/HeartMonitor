@@ -16,8 +16,9 @@ unsigned long flashTimer = 0;
 // const unsigned long IDLE_DURATION = 30 * 60 * 1000;  // 30 minutes
 // const unsigned long FLASHING_DURATION = 5 * 60 * 1000;  // 5 minutes
 // const unsigned long FLASH_INTERVAL = 500;  // 500ms for LED flashing
+int frequency = 0.5;
 
-const unsigned long IDLE_DURATION = .5 * 60 * 1000;  // .5 minutes
+const unsigned long IDLE_DURATION = frequency * 60 * 1000;  // .5 minutes
 const unsigned long FLASHING_DURATION = 2 * 60 * 1000;  // 2 minutes
 const unsigned long FLASH_INTERVAL = 500;  // 500ms for LED flashing
 
@@ -42,6 +43,8 @@ float totalSpO2 = 0;
 
 byte pulseLED = 11; 
 
+int setFrequency(String inputFrequency);
+
 // Setup function
 void setup() {
   Serial.begin(115200);
@@ -59,6 +62,8 @@ void setup() {
   particleSensor.setup(60, 4, 2, 100, 411, 4096); 
   currentState = IDLE;
   stateStartTime = millis();
+
+  Particle.function("frequency", setFrequency);
 }
 
 // Toggle LED on/off every FLASH_INTERVAL
@@ -208,5 +213,17 @@ void loop() {
         resetState();
       }
       break;
+  }
+}
+
+int setFrequency(String inputFrequency) {
+  int frequencyValue = inputFrequency.toInt();
+
+  if (frequencyValue > 0) {
+    frequency = frequencyValue;
+    Serial.println("Set frequency to " + String(frequency));
+    return 1; 
+  } else {
+    return -1;  
   }
 }
