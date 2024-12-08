@@ -58,7 +58,7 @@ router.get('/getData/:deviceID', function (req, res) {
     }
 });
 
-app.delete('/api/readings/:id', async (req, res) => {
+router.delete('/api/readings/:id', async (req, res) => {
     const { id } = req.params;
     try {
       const result = await Reading.deleteMany({ id });
