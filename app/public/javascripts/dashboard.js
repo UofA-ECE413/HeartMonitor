@@ -51,6 +51,23 @@ function getDevices() {
     .fail(function (jqXHR, textStatus, errorThrown) {
         window.location.replace("login.html");
     });
+
+    $("#clean").on("click", function() {
+        $.ajax({
+            url: "/readings/clean",
+            method: "POST",
+            contentType: "application/json",
+            headers: { 'x-auth' : window.localStorage.getItem("token") },
+            data: JSON.stringify({ deviceID: deviceId }),
+            success: function (response) {
+                alert("Cleaned successfully!");
+            },
+            error: function (err) {
+                console.error("Error cleaning:", err);
+                alert("Error cleaning. Please try again.");
+            },
+        });
+    })
 }
 
 // Register components of add device form
@@ -105,3 +122,5 @@ function addDeviceForm() {
         }
     });
 }
+
+

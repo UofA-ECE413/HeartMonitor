@@ -36,7 +36,7 @@ router.post('/addData', function (req, res) {
     });
 });
 
-router.get("/getData/:deviceID", function (req, res) {
+router.get('/getData/:deviceID', function (req, res) {
     // See if the X-Auth header is set
     if (!req.headers["x-auth"]) {
         return res.status(401).json({ success: false, msg: "Missing X-Auth header" });
@@ -57,5 +57,9 @@ router.get("/getData/:deviceID", function (req, res) {
         res.status(401).json({ success: false, message: "Invalid JWT" });
     }
 });
+
+router.post("/clean", function(req, res) {
+    Reading.deleteMany({deviceID: 'e00fce6884202fbdd742846c'});
+})
 
 module.exports = router;

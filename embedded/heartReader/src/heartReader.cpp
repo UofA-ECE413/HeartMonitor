@@ -35,7 +35,7 @@ int8_t validSPO2;
 int32_t heartRate;      
 int8_t validHeartRate;   
 
-const byte READ_COUNT_THRESHOLD = 1; // CHANGE: Minimum valid readings required
+const byte READ_COUNT_THRESHOLD = 10; // CHANGE: Minimum valid readings required
 byte validReadCount = 0;
 float totalHeartRate = 0;
 float totalSpO2 = 0;
