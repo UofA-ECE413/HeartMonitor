@@ -2,22 +2,28 @@
 <html lang="en">
   <head>
     <title>Heart Monitor</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="stylesheets/account.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="javascripts/account.js"></script>
   </head>
   <body>
+    <!-- Navigation Bar -->
     <div class="container">
-      <a href="index.html" class="left brand-logo valign-wrapper">Home</a>
-      <h1>Account</h1>
-      <div>
-        <button id="btnLogOut">LogOut</button>
-      </div>
+      <a href="index.html" class="brand-logo">Home</a>
+      <a href="#">Settings</a>
+      <a href="#" id="btnLogOut">Logout</a>
     </div>
-    <div>
+
+    <!-- Page Title -->
+    <h1>Account</h1>
+
+    <!-- Form Section -->
+    <form>
       <div class="form-group">
-        <label for="password">Old Password:</label>
+        <label for="old_password">Old Password:</label>
         <input
           type="password"
           id="old_password"
@@ -28,7 +34,7 @@
         />
       </div>
       <div class="form-group">
-        <label for="password">New Password:</label>
+        <label for="new_password">New Password:</label>
         <input
           type="password"
           id="new_password"
@@ -38,8 +44,8 @@
           required
         />
       </div>
-      <div>
-        <label for="password">Confirm New Password:</label>
+      <div class="form-group">
+        <label for="confirm_new_password">Confirm New Password:</label>
         <input
           type="password"
           id="confirm_new_password"
@@ -50,17 +56,7 @@
         />
       </div>
       <button id="changePassBtn">Change Password</button>
-    </div>
-    <div>
-      <label for="rxData">Message: </label>
-      <textarea id="rxData"></textarea>
-    </div>
-    <script>
-      (function () {
-        if (!window.localStorage.getItem("token")) {
-          window.location.replace("login.html");
-        }
-      })();
-    </script>
+    </form>
+    <div class="errorDiv"><span id="errorMsg"></span></div>
   </body>
 </html>

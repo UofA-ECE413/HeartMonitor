@@ -295,7 +295,50 @@ router.delete("/deleteDevice/:deviceID", function (req, res) {
     } catch (ex) {
         res.status(401).json({ success: false, msg: "Invalid JWT" });
     }
-})
+});
+
+router.post("/changePassword", function (req, res) {
+    const oldPass = req.body.oldPassword;
+    const newPass = req.body.newPassword;
+
+    if (!req.headers["x-auth"]) {
+        return res.status(401).json({ success: false, msg: "Missing X-Auth header" });
+    }
+
+    const token = req.headers["x-auth"];
+
+    try {
+        const decoded = jwt.decode(token, secret);
+        
+        // Get user from the database
+        Patient.findOne({email: decoded.email}).then(function (patient) {
+            if (!patient) {
+                // Username not in the database
+                res.status(401).json({ message: "User Not Found" });
+            }
+            else {
+                if (bcrypt.compareSync(oldPass, patient.passwordHash)) { 
+                    patient.passwordHash = bcrypt.hashSync(newPass, 10);
+                    patient.save().then((patient) => {
+                        // Send back a token that contains the user's username
+                        res.status(201).json({ success: true, token: token, message: "Password successfully changed" });
+                    }).catch((err) => {
+                        res.status(400).json({ success: false, message: err });
+                    });
+                }
+                else {
+                    res.status(401).json({ message: "Old Password invalid" });
+                }
+            }
+        }).catch((err) => {
+            res.status(400).send(err);
+        });
+
+    } catch (error) {
+        console.error("Error updating password:", error);
+        res.status(500).json({ message: 'Failed to update password' });
+    }
+});
 
 
 
