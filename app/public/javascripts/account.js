@@ -1,4 +1,6 @@
 // public/javascripts/account.js
+
+// Register LogOut button and request user status
 $(function (){
     $('#btnLogOut').click(logout);
 
@@ -16,6 +18,7 @@ $(function (){
     });
 });
 
+// Remove token to logout
 function logout() {
     localStorage.removeItem("token");
     window.location.replace("index.html");

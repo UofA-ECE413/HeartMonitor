@@ -16,12 +16,12 @@ const secret = fs.readFileSync(__dirname + '/../keys/jwtkey').toString();
 
 router.post('/addData', function (req, res) {
     let data = JSON.parse(req.body.data);
-    if (!data.ir || !data.heartRate || !data.spo2) {
+    if (!data.heartRate || !data.spo2) {
         res.status(401).json({ error: "Missing data" });
         return;
     }
     const newReading = new Reading ({
-        ir: data.ir,
+        time: new Date(),
         heartRate: data.heartRate,
         spo2: data.spo2,
         deviceID: req.body.coreid
@@ -36,7 +36,7 @@ router.post('/addData', function (req, res) {
     });
 });
 
-router.get("/getData/:deviceID", function (req, res) {
+router.get('/getData/:deviceID', function (req, res) {
     // See if the X-Auth header is set
     if (!req.headers["x-auth"]) {
         return res.status(401).json({ success: false, msg: "Missing X-Auth header" });
@@ -57,5 +57,6 @@ router.get("/getData/:deviceID", function (req, res) {
         res.status(401).json({ success: false, message: "Invalid JWT" });
     }
 });
+
 
 module.exports = router;
