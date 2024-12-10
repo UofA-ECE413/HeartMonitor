@@ -9,6 +9,7 @@
         <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
         <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="javascripts/dashboard.js"></script>
     </head>
     <body>
@@ -29,8 +30,14 @@
             <section>
                 <h2>Readings</h2>
                 <select id="deviceDropdown"></select>
+                <div>
+                    <label for="graphDay">Select date to display</label>
+                    <input type="date" id="graphDay" />
+                </div>
                 <div class="readings-list"><table id="readings"></table>
                 </div>
+                <canvas id="heartRateChart" width="800" height="400"></canvas>
+                <canvas id="spo2Chart" width="800" height="400"></canvas>
             </section>
         </main>
         <div id="deviceFormModal" class="modal">
