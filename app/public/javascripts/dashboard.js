@@ -25,10 +25,32 @@ function getDeviceData(deviceID) {
         dataType: 'json'
     })
     .done(function (data) {
+        // For Table
         $('#readings').html(`<tr><th>Time</th><th>Heart Rate</th><th>spO2</th></tr>`);
+        // For Chart
+        let today = new Date();
+        today = today.toISOString().split('T')[0];
+        let heartRates = [];
+        let spo2s = [];
+        let times = [];
         data.forEach((entry) => {
-            $('#readings').append(`<tr><td>${entry.time}</td><td>${entry.heartRate}</td><td>${entry.spo2}</td></tr>`);
+            // For Table
+            let readingDate = new Date(entry.time);
+            const entryDate = readingDate.toLocaleString();
+            $('#readings').append(`<tr><td>${entryDate}</td><td>${entry.heartRate}</td><td>${entry.spo2}</td></tr>`);
+
+            // For Chart
+            readingString = readingDate.toISOString().split('T')[0];
+
+            if (readingString === today) {
+                heartRates.push(entry.heartRate);
+                spo2s.push(entry.spo2);
+                times.push(getFormattedTime(readingDate));
+            }
         });
+
+        updateHeartChart(times, heartRates);
+        updateSpo2Chart(times, spo2s);
     })
     .fail(function (jqXHR, textStatus, errorThrown) {
         window.location.replace("login.html");
@@ -217,5 +239,60 @@ function manageDeviceForm(e) {
     });
 }
 
+function updateHeartChart(xlabels, heartRates) {
+    // console.log(heartRates);
+    const data = {
+        labels: xlabels,
+        datasets: [{
+            type: 'line',
+            label: 'Heart Rate',
+            data: heartRates,
+            borderColor: 'rgb(255, 99, 132)',
+        }]
+    };
 
+    const config = {
+        data: data,
+        options: {
+            responsive: false,
+            maintainAspectRatio: false
+        }
+    };
 
+    const ctx = document.getElementById('heartRateChart').getContext('2d');
+    const myChart = new Chart(ctx, config);
+}
+
+function updateSpo2Chart(xlabels, spo2s) {
+    const data = {
+        labels: xlabels,
+        datasets: [{
+            type: 'line',
+            label: 'Oxygen Saturation (Spo2)',
+            data: spo2s,
+            borderColor: 'rgb(132, 99, 255)',
+        }]
+    };
+
+    const config = {
+        data: data,
+        options: {
+            responsive: false,
+            maintainAspectRatio: true
+        }
+    };
+
+    const ctx = document.getElementById('spo2Chart').getContext('2d');
+    const myChart = new Chart(ctx, config);
+}
+
+function getFormattedTime(date) {
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+
+    // Pad single-digit hours and minutes with a leading zero
+    const paddedHours = String(hours).padStart(2, '0');
+    const paddedMinutes = String(minutes).padStart(2, '0');
+
+    return `${paddedHours}:${paddedMinutes}`;
+}
