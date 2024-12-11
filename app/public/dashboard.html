@@ -28,16 +28,58 @@
                 <button id="addDeviceBtn" class="button">Add Device</button>
             </section>
             <section>
-                <h2>Readings</h2>
-                <select id="deviceDropdown"></select>
+                <div>
+                    <label for="deviceDropdown">Select Device</label>
+                    <select id="deviceDropdown"></select>
+                </div>
+                <h2>Weekly Summary (past 7 days)</h2>
+                <div>
+                    <h3>Heart Rate (BPM)</h3>
+                    <div>
+                        <div>
+                            <span>Average</span>
+                            <span id="heartWeeklyAverage">-</span>
+                        </div>
+                        <div>
+                            <span>Minimum</span>
+                            <span id="heartWeeklyMinimum">-</span>
+                        </div>
+                        <div>
+                            <span>Maximum</span>
+                            <span id="heartWeeklyMaximum">-</span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3>Oxygen Saturation (%)</h3>
+                    <div>
+                        <div>
+                            <span>Average</span>
+                            <span id="spo2WeeklyAverage">-</span>
+                        </div>
+                        <div>
+                            <span>Minimum</span>
+                            <span id="spo2WeeklyMinimum">-</span>
+                        </div>
+                        <div>
+                            <span>Maximum</span>
+                            <span id="spo2WeeklyMaximum">-</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section>
+                <h2>Daily Readings</h2>
                 <div>
                     <label for="graphDay">Select date to display</label>
                     <input type="date" id="graphDay" />
                 </div>
                 <div class="readings-list"><table id="readings"></table>
                 </div>
-                <canvas id="heartRateChart" width="800" height="400"></canvas>
-                <canvas id="spo2Chart" width="800" height="400"></canvas>
+                <div class="graphDiv">
+                    <canvas id="heartRateChart" width="800" height="400"></canvas>
+                    <canvas id="spo2Chart" width="800" height="400"></canvas>
+                </div>
             </section>
         </main>
         <div id="deviceFormModal" class="modal">

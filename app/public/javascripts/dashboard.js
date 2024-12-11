@@ -33,10 +33,16 @@ function getDeviceData(deviceID, date) {
         dataType: 'json'
     })
     .done(function (data) {
-
+        // For daily results
         let heartRates = [];
         let spo2s = [];
         let times = [];
+
+        // For weekly summary
+        weeklyHeart = [];
+        weeklySpo2 = [];
+        const weeklyDate = new Date(); 
+        weeklyDate.setDate(weeklyDate.getDate() - 7);
         
         // For Table
         $('#readings').html(`<tr><th>Time</th><th>Heart Rate</th><th>spO2</th></tr>`);
@@ -51,19 +57,26 @@ function getDeviceData(deviceID, date) {
             // For Table
             let readingDate = new Date(entry.time);
             const entryDate = readingDate.toLocaleString();
-            $('#readings').append(`<tr><td>${entryDate}</td><td>${entry.heartRate}</td><td>${entry.spo2}</td></tr>`);
 
-            //get data for chart
+            // get data for chart
             if (compareDates(entryDate, date)) {
+                $('#readings').append(`<tr><td>${entryDate}</td><td>${entry.heartRate}</td><td>${entry.spo2}</td></tr>`);
                 heartRates.push(entry.heartRate);
                 spo2s.push(entry.spo2);
                 times.push(getFormattedTime(readingDate));
+            }
+
+            // get data for weekly summary
+            if (readingDate > weeklyDate) {
+                weeklyHeart.push(entry.heartRate);
+                weeklySpo2.push(entry.spo2);
             }
         });
 
         // Update charts
         updateHeartChart(times, heartRates);
         updateSpo2Chart(times, spo2s);
+        loadWeeklySummary(weeklyHeart, weeklySpo2);
     })
     .fail(function (jqXHR, textStatus, errorThrown) {
         window.location.replace("login.html");
@@ -361,4 +374,31 @@ function compareDates(  localDate, isoDate) {
     const day2 = parseInt(arr[2]);
 
     return (year1 == year2 && month1 == month2 && day1 == day2);
+}
+
+function loadWeeklySummary(heartRates, spo2s) {
+    if (heartRates.length > 0) {
+        let max = Math.max(...heartRates);
+        let min = Math.min(...heartRates);
+        let avg = heartRates.reduce((sum, num) => sum + parseInt(num), 0) / heartRates.length;
+        $('#heartWeeklyAverage').text(avg.toFixed(1));
+        $('#heartWeeklyMinimum').text(min);
+        $('#heartWeeklyMaximum').text(max);
+    } else {
+        $('#heartWeeklyAverage').text('-');
+        $('#heartWeeklyMinimum').text('-');
+        $('#heartWeeklyMaximum').text('-');
+    }
+    if (spo2s.length > 0) {
+        let max = Math.max(...spo2s);
+        let min = Math.min(...spo2s);
+        let avg = spo2s.reduce((sum, num) => sum + parseInt(num), 0) / spo2s.length;
+        $('#spo2WeeklyAverage').text(avg.toFixed(1));
+        $('#spo2WeeklyMinimum').text(min);
+        $('#spo2WeeklyMaximum').text(max);
+    } else {
+        $('#spo2WeeklyAverage').text('-');
+        $('#spo2WeeklyMinimum').text('-');
+        $('#spo2WeeklyMaximum').text('-');
+    }
 }
