@@ -8,6 +8,10 @@ const fs = require('fs');
 
 const secret = fs.readFileSync(__dirname + '/../keys/jwtkey').toString();
 
+// Generate a random API Key
+const API_KEY = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+console.log(`Generated API Key: ${API_KEY}`); // Print the generated API Key on server startup
+
 // example of authentication
 // register a new patient
 
@@ -15,25 +19,42 @@ const secret = fs.readFileSync(__dirname + '/../keys/jwtkey').toString();
 // see Figure 9.3.5: Node.js project uses token-based authentication and password hashing with bcryptjs on zybooks
 
 router.post('/addData', function (req, res) {
-    let data = JSON.parse(req.body.data);
-    if (!data.heartRate || !data.spo2) {
-        res.status(401).json({ error: "Missing data" });
-        return;
+    const { API_Key } = req.body; // Extract only the API_Key from the request body
+
+    // Check if API Key is valid
+    const isValidApiKey = API_Key === API_KEY;
+
+    // Log the request body and validation result
+    console.log('Received JSON:', JSON.stringify(req.body, null, 4));
+    console.log('Validation Result:', isValidApiKey ? 'Success' : 'Failure');
+
+    // Respond with the original JSON and validation result
+    if (isValidApiKey) {
+        let data = JSON.parse(req.body.data);
+        if (!data.heartRate || !data.spo2) {
+            res.status(401).json({ error: "Missing data" });
+            return;
+        }
+        const newReading = new Reading ({
+            time: new Date(),
+            heartRate: data.heartRate,
+            spo2: data.spo2,
+            deviceID: req.body.coreid
+        });
+        console.log(newReading);
+        newReading.save().then((reading) => {
+            // Send back a token that contains the user's username
+            console.log("SUCCESS");
+            res.status(201).json({ success: true, msg: "Data added" });
+        }).catch((err) => {
+            res.status(400).json({ success: false, err: err });
+        });
+    } else {
+        res.status(403).json({
+            message: 'Failure: Invalid API Key',
+            received: req.body, // Echo back the full received JSON
+        });
     }
-    const newReading = new Reading ({
-        time: new Date(),
-        heartRate: data.heartRate,
-        spo2: data.spo2,
-        deviceID: req.body.coreid
-    });
-    console.log(newReading);
-    newReading.save().then((reading) => {
-        // Send back a token that contains the user's username
-        console.log("SUCCESS");
-        res.status(201).json({ success: true, msg: "Data added" });
-    }).catch((err) => {
-        res.status(400).json({ success: false, err: err });
-    });
 });
 
 router.get('/getData/:deviceID', function (req, res) {
