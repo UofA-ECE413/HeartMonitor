@@ -186,7 +186,15 @@ void calculateAndPublishMetrics() {
 
   // Publish data as JSON to webhook registered to addData endpoint
   String eventData = String::format("{\"heartRate\": %.2f, \"spo2\": %.2f}", avgHeartRate, avgSpO2);
-  Particle.publish("reading", eventData, PRIVATE);
+  bool success = Particle.publish("reading", eventData, PRIVATE);
+  if (success) {
+    for(int i = 5; i > 0; i--){
+      RGB.color(0, 255, 0);
+      delay(500);
+      RGB.color(0, 0, 0);
+      delay(500);
+    }
+  }
 
   Serial.println(eventData);
 
