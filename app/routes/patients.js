@@ -31,7 +31,6 @@ router.post('/signUp', function (req, res) {
             newPatient.save().then(function (patient) { 
                 let msgStr = `Patient (${req.body.email}) account has been created.`;
                 res.status(201).json({ success: true, message: msgStr });
-                console.log(msgStr);
             }).catch((err) => {
                 res.status(400).json({ success: false, err: err });
             });
@@ -209,15 +208,12 @@ router.post("/updateDevice/:deviceId", async function (req, res) {
             if (!patient) {
                 return res.status(404).json({ success: false, msg: "Patient not found" });
             }
-
-            console.log(patient);
             
             const deviceIndex = patient.devices.findIndex((d) => d.id === deviceId.toString());
             if (deviceIndex === -1) {
                 return res.status(404).json({ success: false, msg: "Device not found" });
             }
 
-            console.log("INDEX: " + deviceIndex);
             patient.devices[deviceIndex] = {
                     id: deviceId,
                     name: name,
@@ -226,7 +222,6 @@ router.post("/updateDevice/:deviceId", async function (req, res) {
                     endTime: endTime,
             }
 
-            console.log(patient);
             patient.save()
 
             res.status(200).json({ message: 'Device updated successfully', patient});
@@ -281,7 +276,6 @@ router.delete("/deleteDevice/:deviceID", function (req, res) {
             if (!patient) {
                 return res.status(404).json({ success: false, msg: "Patient not found" });
             }
-
             // Find and remove the device
             const deviceIndex = patient.devices.findIndex((d) => d.id === deviceID.toString());
             if (deviceIndex === -1) {

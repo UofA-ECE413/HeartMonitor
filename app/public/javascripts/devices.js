@@ -169,7 +169,7 @@ function manageDeviceForm(e) {
     $("#deleteDevice").css("display", "block");
     $("#updateDevice").css("display", "block");
 
-    var deviceID = e.id;
+    const deviceID = e.id;
 
     $.ajax({
         url: `/patients/deviceInfo/${deviceID}`,
@@ -192,6 +192,8 @@ function manageDeviceForm(e) {
 
     closeModal.on("click", function () {
         modal.css("display", "none");
+        $("#deleteDevice").off("click");
+        $("#updateDevice").off("click");
     });
 
     $('#deleteDevice').on("click", function () {
@@ -205,6 +207,8 @@ function manageDeviceForm(e) {
             // alert("Device deleted successfully.");
             getDevices();
             modal.hide();
+            $("#deleteDevice").off("click");
+            $("#updateDevice").off("click");
         })
         .fail(function (jqXHR, textStatus, errorThrown) {
             if (jqXHR.status === 401) {
@@ -234,6 +238,8 @@ function manageDeviceForm(e) {
                 // alert("Device updated successfully!");
                 getDevices();
                 modal.hide();
+                $("#deleteDevice").off("click");
+                $("#updateDevice").off("click");
             },
             error: function (err) {
                 console.error("Error updating device:", err);
@@ -277,6 +283,8 @@ function manageDeviceForm(e) {
     $(window).on("click", function (e) {
         if ($(e.target).is(modal)) {
             modal.hide();
+            $("#deleteDevice").off("click");
+            $("#updateDevice").off("click");
         }
     });
 }
