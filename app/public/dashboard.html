@@ -15,19 +15,16 @@
     <body>
         <nav>
             <a href="index.html">Home</a>
+            <a href="devices.html">Devices</a>
             <a href="account.html">Account</a>
         </nav>
         <header>
             <h1>Dashboard</h1>
-            <p>Manage your devices and monitor readings below.</p>
+            <p>View weekly summaries and daily readings below.</p>
         </header>
         <main>
             <section>
-                <!-- <h2>Your Devices</h2> -->
-                <div id="devices" class="devices-list">
-                    <!-- <h2>Your Devices</h2> -->
-                </div>
-                <!-- <button id="addDeviceBtn" class="button">Add Device</button> -->
+                <!-- <div id="devices" class="devices-list"></div> -->
             </section>
             <section>
                 <div>
@@ -84,36 +81,5 @@
                 </div>
             </section>
         </main>
-        <div id="deviceFormModal" class="modal">
-            <div class="modal-content">
-                <span id="closeForm" class="close">&times;</span>
-                <h3 id="form-title"></h3>
-                <form id="deviceForm">
-                    <table>
-                        <tr>
-                            <td><label for="deviceName">Name:</label></td>
-                            <td><input type="text" id="deviceName" name="deviceName" required></td>
-                        </tr>
-                        <tr>
-                            <td><label for="deviceId">Device ID:</label></td>
-                            <td><input type="text" id="deviceId" name="deviceId" required></td>
-                        </tr>
-                        <tr>
-                            <td><label for="frequency">Measurement Frequency (Minutes):</label></td>
-                            <td><input type="number" id="frequency" name="frequency" required min="0" value="30"></td>
-                        </tr>
-                        <tr>
-                            <td><label for="startTime">Time Range</label></td>
-                            <td><input type="time" id="startTime" class="time-input" value="06:00"> - <input type="time" id="endTime" class="time-input" value="22:00"></td>
-                        </tr>
-                    </table>
-                    <div id="formButtons">
-                        <button type="button" id="submitDevice" class="button">Add Device</button>
-                        <button type="button" id="deleteDevice" class="button">Delete</button>
-                        <button type="button" id="updateDevice" class="button">Update</button>
-                    </div>
-                </form>
-            </div>
-        </div>
     </body>
 </html>

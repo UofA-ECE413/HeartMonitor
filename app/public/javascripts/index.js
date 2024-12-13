@@ -6,6 +6,7 @@ $(function () {
     if (token) {
         $("nav").html(`
             <a href="dashboard.html">Dashboard</a>
+            <a href="devices.html">Devices</a>
             <a href="account.html">Account</a>
         `);
     } else {
