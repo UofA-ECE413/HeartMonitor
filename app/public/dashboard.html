@@ -22,9 +22,11 @@
         </header>
         <main>
             <section>
-                <h2>Your Devices</h2>
-                <div id="devices" class="devices-list"></div>
-                <button id="addDeviceBtn" class="button">Add Device</button>
+                <!-- <h2>Your Devices</h2> -->
+                <div id="devices" class="devices-list">
+                    <!-- <h2>Your Devices</h2> -->
+                </div>
+                <!-- <button id="addDeviceBtn" class="button">Add Device</button> -->
             </section>
             <section>
                 <h2>Readings</h2>
@@ -50,6 +52,10 @@
                         <tr>
                             <td><label for="frequency">Measurement Frequency (Minutes):</label></td>
                             <td><input type="number" id="frequency" name="frequency" required min="0" value="30"></td>
+                        </tr>
+                        <tr>
+                            <td><label for="startTime">Time Range</label></td>
+                            <td><input type="time" id="startTime" class="time-input" value="06:00"> - <input type="time" id="endTime" class="time-input" value="22:00"></td>
                         </tr>
                     </table>
                     <div id="formButtons">

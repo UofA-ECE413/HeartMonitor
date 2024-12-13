@@ -8,6 +8,8 @@ const patientSchema = new db.Schema({
         name: String,
         id: String,
         frequency: Number,
+        startTime: String,
+        endTime: String,
     }],
 });
 

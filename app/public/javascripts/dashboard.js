@@ -5,6 +5,24 @@ $(addDeviceForm);
 // Update devices on dashboard
 $(getDevices);
 
+
+function openAddDevice() {
+    const modal = $("#deviceFormModal");
+    const formTitle = $("#form-title");
+    formTitle.text("Add a New Device");
+    $("#submitDevice").css("display", "block");
+    $("#deleteDevice").css("display", "none");
+    $("#updateDevice").css("display", "none");
+
+    $("#deviceId").val("").prop("disabled", false); 
+    $("#deviceName").val("");
+    $("#frequency").val("30");
+    $("#startTime").val("06:00");
+    $("#endTime").val("22:00");
+
+    modal.css("display", "flex");
+}
+
 // Set first/default option to "Select device" (disabled), register change listener
 $(document).ready(function () {
     $('#deviceDropdown').append('<option value="" disabled selected>Select device</option>');
@@ -36,6 +54,7 @@ function getDeviceData(deviceID) {
 }
 
 
+
 // JQuery ajax call to devices endpoint, add devices to dashboard device list and dropdown menu
 function getDevices() {
     $.ajax({
@@ -45,10 +64,34 @@ function getDevices() {
         dataType: 'json'
     })
     .done(function (data) {
+        $('#devices').html(`<div class="device-header"><h2>Your Devices</h2><button id="addDeviceBtn" class="button" style="float:right;" onclick="openAddDevice()">&#43</button></div>`);
         data.devices.forEach((device) => {
-            $('#devices').append(`<p>${device.name}</p><button id=${device.id} class="button" onclick="manageDeviceForm(this)">Manage Device</button>`);
+            // $('#devices').append(`<tr><td>${device.name}</td><td><button id=${device.id} class="button" onclick="manageDeviceForm(this)">Manage Device</button></td></tr>`);
             $('#deviceDropdown').append(`<option value=${device.name} id="${device.id}-dropdown">${device.name}</option>`);
+
+            // Create device item container
+            const $deviceItem = $("<div>").addClass("device-item");
+
+            // Create device name element
+            const $deviceNameDisplay = $("<span>")
+                .addClass("device-name")
+                .text(device.name);
+
+            // Create manage button
+            const $manageButton = $("<button>")
+                .attr("id", device.id)
+                .addClass("button")
+                .text("Manage")
+                .on("click", function () {manageDeviceForm(this)});
+
+            // Append elements to device item
+            $deviceItem.append($deviceNameDisplay).append($manageButton);
+
+            // Append device item to container
+            $('#devices').append($deviceItem);
         });
+
+        
     })
     .fail(function (jqXHR, textStatus, errorThrown) {
         window.location.replace("login.html");
@@ -62,21 +105,6 @@ function addDeviceForm() {
     const addDeviceBtn = $("#addDeviceBtn");
     const closeModal = $("#closeForm");
     const submitDevice = $("#submitDevice");
-    const formTitle = $("#form-title");
-
-    // Open the modal
-    addDeviceBtn.on("click", function () {
-        formTitle.text("Add a New Device");
-        $("#submitDevice").css("display", "block");
-        $("#deleteDevice").css("display", "none");
-        $("#updateDevice").css("display", "none");
-
-        $("#deviceId").val("").prop("disabled", false); 
-        $("#deviceName").val("");
-        $("#frequency").val("30");
-
-        modal.css("display", "flex");
-    });
 
     // Close the modal
     closeModal.on("click", function () {
@@ -88,6 +116,11 @@ function addDeviceForm() {
         const deviceName = $("#deviceName").val().trim();
         const deviceId = $("#deviceId").val().trim();
         const frequency = $("#frequency").val();
+        const startTime = $("#startTime").val();
+        const endTime = $("#endTime").val();
+
+        const timeRange = startTime + "," + endTime;
+        console.log(timeRange);
 
         if ($("#deviceForm").valid()) {
             $.ajax({
@@ -99,9 +132,11 @@ function addDeviceForm() {
                     name: deviceName,
                     id: deviceId,
                     frequency: frequency,
+                    startTime: startTime,
+                    endTime: endTime,
                 }}),
                 success: function (response) {
-                    alert("Device added successfully!");
+                    // alert("Device added successfully!");
                     getDevices();
                     modal.hide();
                     $("#deviceId").val(""); 
@@ -110,6 +145,51 @@ function addDeviceForm() {
                     console.error("Error adding device:", err);
                     alert("Failed to add device. Please try again.");
                 },
+            });
+
+            console.log(`https://api.particle.io/v1/devices/${deviceId}/frequency: ${frequency}`);
+
+            $.ajax({
+                url: `https://api.particle.io/v1/devices/${deviceId}/frequency`,
+                crossDomain: true,
+                method: 'post',
+                headers: {
+                  'Authorization': 'Bearer cc002dcb1b5b7200f638e7e8688c9ec99438b567'
+                },
+                contentType: 'application/x-www-form-urlencoded',
+                data: {
+                  'args': frequency
+                }
+              }).done(function(response) {
+                console.log(response);
+            });
+            $.ajax({
+                url: `https://api.particle.io/v1/devices/${deviceId}/frequency`,
+                crossDomain: true,
+                method: 'post',
+                headers: {
+                  'Authorization': 'Bearer cc002dcb1b5b7200f638e7e8688c9ec99438b567'
+                },
+                contentType: 'application/x-www-form-urlencoded',
+                data: {
+                  'args': frequency
+                }
+              }).done(function(response) {
+                console.log(response);
+            });
+            $.ajax({
+                url: `https://api.particle.io/v1/devices/${deviceId}/setTimeRange`,
+                crossDomain: true,
+                method: 'post',
+                headers: {
+                  'Authorization': 'Bearer cc002dcb1b5b7200f638e7e8688c9ec99438b567'
+                },
+                contentType: 'application/x-www-form-urlencoded',
+                data: {
+                  'args': $("#startTime").val() + "," + $("#endTime").val()
+                }
+              }).done(function(response) {
+                console.log(response);
             });
         } 
         // else {
@@ -138,7 +218,7 @@ function manageDeviceForm(e) {
     $("#deleteDevice").css("display", "block");
     $("#updateDevice").css("display", "block");
 
-    let deviceID = e.id.split("-")[0];
+    var deviceID = e.id;
 
     $.ajax({
         url: `/patients/deviceInfo/${deviceID}`,
@@ -150,6 +230,8 @@ function manageDeviceForm(e) {
         $("#deviceName").val(data.device.name);
         $("#deviceId").val(data.device.id).prop("disabled", true);
         $("#frequency").val(data.device.frequency);
+        $("#startTime").val(data.device.startTime);
+        $("#endTime").val(data.device.endTime);
     })
     .fail(function (jqXHR, textStatus, errorThrown) {
         alert("Error fetching device details");
@@ -170,8 +252,9 @@ function manageDeviceForm(e) {
             dataType: 'json'
         })
         .done(function (data) {
-            alert("Device deleted successfully.");
-            location.reload();
+            // alert("Device deleted successfully.");
+            getDevices();
+            modal.hide();
         })
         .fail(function (jqXHR, textStatus, errorThrown) {
             if (jqXHR.status === 401) {
@@ -194,16 +277,50 @@ function manageDeviceForm(e) {
             data: JSON.stringify({ 
                 name: $("#deviceName").val(),
                 frequency: Number($("#frequency").val()),
+                startTime: $("#startTime").val(),
+                endTime: $("#endTime").val(),
             }),
             success: function (response) {
-                alert("Device updated successfully!");
-                location.reload();
+                // alert("Device updated successfully!");
+                getDevices();
                 modal.hide();
             },
             error: function (err) {
                 console.error("Error updating device:", err);
                 alert("Failed to update device. Please try again.");
             },
+        });
+
+        console.log(`https://api.particle.io/v1/devices/${deviceID}/frequency: ${$("#frequency").val()}`);
+        
+        $.ajax({
+            url: `https://api.particle.io/v1/devices/${deviceID}/frequency`,
+            crossDomain: true,
+            method: 'post',
+            headers: {
+              'Authorization': 'Bearer cc002dcb1b5b7200f638e7e8688c9ec99438b567'
+            },
+            contentType: 'application/x-www-form-urlencoded',
+            data: {
+              'args': $("#frequency").val()
+            }
+          }).done(function(response) {
+            console.log(response);
+        });
+
+        $.ajax({
+            url: `https://api.particle.io/v1/devices/${deviceID}/setTimeRange`,
+            crossDomain: true,
+            method: 'post',
+            headers: {
+              'Authorization': 'Bearer cc002dcb1b5b7200f638e7e8688c9ec99438b567'
+            },
+            contentType: 'application/x-www-form-urlencoded',
+            data: {
+              'args': $("#startTime").val() + "," + $("#endTime").val()
+            }
+          }).done(function(response) {
+            console.log(response);
         });
     })
 
@@ -216,6 +333,7 @@ function manageDeviceForm(e) {
         }
     });
 }
+
 
 
 

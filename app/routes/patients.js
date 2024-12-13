@@ -174,12 +174,11 @@ router.post("/addDevice", function (req, res) {
             if (!patient) {
                 return res.status(404).json({ success: false, msg: "Patient not found" });
             }
-            console.log("FOUND PATIENT: " + patient)
 
             // Add unique deviceIDs to the patient's list
-            patient.devices.push(req.body.device);
-
-            console.log("PATIENT: " + patient);
+            var devices = new Set(patient.devices);
+            devices.add(req.body.device);
+            patient.devices = Array.from(devices);
 
             patient.save().then(() => {
                 res.status(200).json({ success: true, msg: "Devices added successfully", devices: patient.devices });
@@ -195,10 +194,8 @@ router.post("/addDevice", function (req, res) {
 });
 
 router.post("/updateDevice/:deviceId", async function (req, res) {
-    const { deviceId } = req.params;
-    const { name, frequency } = req.body;
-
-    console.log("NAME: " + name + ", FREQ: " + frequency);
+    var { deviceId } = req.params;
+    var { name, frequency, startTime, endTime } = req.body;
 
     if (!req.headers["x-auth"]) {
         return res.status(401).json({ success: false, msg: "Missing X-Auth header" });
@@ -208,22 +205,32 @@ router.post("/updateDevice/:deviceId", async function (req, res) {
     try {
         const decoded = jwt.decode(token, secret);
 
-        const updatedPatient = await Patient.findOneAndUpdate(
-            { email: decoded.email, 'devices.id': deviceId },
-            {
-                $set: {
-                    'devices.$.name': name,
-                    'devices.$.frequency': frequency,
-                },
-            },
-            { new: true } 
-        );
+        Patient.findOne({ email: decoded.email }).then(function (patient) {
+            if (!patient) {
+                return res.status(404).json({ success: false, msg: "Patient not found" });
+            }
 
-        if (!updatedPatient) {
-            return res.status(404).json({ error: 'Patient or device not found' });
-        }
+            console.log(patient);
+            
+            const deviceIndex = patient.devices.findIndex((d) => d.id === deviceId.toString());
+            if (deviceIndex === -1) {
+                return res.status(404).json({ success: false, msg: "Device not found" });
+            }
 
-        res.status(200).json({ message: 'Device updated successfully', updatedPatient });
+            console.log("INDEX: " + deviceIndex);
+            patient.devices[deviceIndex] = {
+                    id: deviceId,
+                    name: name,
+                    frequency: frequency,
+                    startTime: startTime,
+                    endTime: endTime,
+            }
+
+            console.log(patient);
+            patient.save()
+
+            res.status(200).json({ message: 'Device updated successfully', patient});
+        });
     } catch (error) {
         console.error("Error during device update:", error);
         res.status(500).json({ error: 'Failed to update device' });
