@@ -8,6 +8,15 @@ enum State {
   WAITING_FOR_READING
 };
 
+struct SensorData { //our data type
+  float heartRate;
+  float spo2;
+};
+
+SensorData localData[100]; //array to store data
+int dataIndex = 0;         //index to keep trrack of data
+bool storedData = false;
+
 State currentState = IDLE;
 unsigned long stateStartTime = 0;
 unsigned long flashTimer = 0;
@@ -60,6 +69,7 @@ void setup() {
   pinMode(ledPin, OUTPUT);
   pinMode(pulseLED, OUTPUT);
   digitalWrite(ledPin, LOW);
+  RGB.control(true); //Control the rgb led on the Argon
 
   if (!particleSensor.begin()) {
     Serial.println("MAX30105 was not found. Please check wiring/power.");
@@ -186,6 +196,42 @@ void calculateAndPublishMetrics() {
   validReadCount = 0;
 }
 
+//store data  when not connected to wifi
+void storeData() {
+  Serial.println("Storing data");
+  Serial.println("Calculating and publishing metrics");
+  float avgHeartRate = totalHeartRate / validReadCount;
+  float avgSpO2 = totalSpO2 / validReadCount;
+
+  //make sure there is room in the array
+  if (dataIndex < 100) { 
+    localData[dataIndex].heartRate = heartRate;
+    localData[dataIndex].spo2 = spo2;
+    dataIndex++;
+    Serial.println("Store Data Successful");
+    storedData = true;
+  } 
+  else {
+    Serial.println("Data storage full, unable to store new readings");
+  }
+}
+
+void uploadData() {
+  Serial.println("Uploading Stored Data... Please be patient");
+
+  for(int i = 0; i < dataIndex; i++){
+    String eventData = String::format("{\"heartRate\": %.2f, \"spo2\": %.2f}", localData[i].heartRate, localData[i].spo2);
+    Particle.publish("reading", eventData, PRIVATE);
+    Serial.println(eventData);
+    localData[i].heartRate = NULL;
+    localData[i].spo2 = NULL;
+    delay(750);
+  }
+
+  dataIndex = 0;
+  storedData = false;
+}
+
 // Function to reset state and variables
 void resetState() {
   Serial.println("Resetting state");
@@ -201,44 +247,72 @@ void resetState() {
 void loop() {
   unsigned long currentTime = millis();
 
-  int currentSeconds = getSecondsSinceMidnight();
+  if(!WiFi.ready()){
 
-  // Only proceed if the current time falls within the active range
-  if (currentSeconds >= startTimeInSeconds && currentSeconds <= endTimeInSeconds) {
-
-    switch (currentState) {
-      case IDLE:
-        Serial.println("Idle");
-
-        // Wait for IDLE_DURATION (default 30 minutes)
-        if (currentTime - stateStartTime >= IDLE_DURATION) {
-          currentState = WAITING_FOR_READING;
-          stateStartTime = currentTime;
-          flashTimer = currentTime;
-        }
-        break;
-
-      case WAITING_FOR_READING:
-        Serial.println("Waiting for reading");
-
-        // Start flashing led and waiting for valid metrics
-        if (gatherValidReadings()) {
-          calculateAndPublishMetrics();
-          resetState();
-        }
-
-        // Timeout if no valid readings within 5 minutes
-        if (currentTime - stateStartTime >= FLASHING_DURATION) {
-          resetState();
-        }
-        break;
+    for(int i = 5; i > 0; i--){
+      RGB.color(255, 255, 0);
+      delay(500);
+      RGB.color(0, 0, 0);
+      delay(500);
     }
-  } else {
-    // If outside the range, stay in IDLE
-    if (currentState != IDLE) {
+    
+    if (gatherValidReadings()) {
+      storeData();
       resetState();
     }
-    Serial.println("Outside active time range. Remaining in IDLE.");
+
+    if (currentTime - stateStartTime >= FLASHING_DURATION) {
+      resetState();
+    }
+  }
+  else {
+
+    Serial.println("Starting New Scan with WiFi");
+
+    int currentSeconds = getSecondsSinceMidnight();
+
+    // Only proceed if the current time falls within the active range
+    if (currentSeconds >= startTimeInSeconds && currentSeconds <= endTimeInSeconds) {
+
+      switch (currentState) {
+        case IDLE:
+          Serial.println("Idle");
+
+          // Wait for IDLE_DURATION (default 30 minutes)
+          if (currentTime - stateStartTime >= IDLE_DURATION) {
+            currentState = WAITING_FOR_READING;
+            stateStartTime = currentTime;
+            flashTimer = currentTime;
+          }
+          break;
+
+        case WAITING_FOR_READING:
+          //Upload stored data
+          if(storedData){
+            uploadData();
+          }
+
+          Serial.println("Waiting for reading");
+
+          // Start flashing led and waiting for valid metrics
+          if (gatherValidReadings()) {
+            calculateAndPublishMetrics();
+            resetState();
+          }
+
+          // Timeout if no valid readings within 5 minutes
+          if (currentTime - stateStartTime >= FLASHING_DURATION) {
+            resetState();
+          }
+          break;
+      }
+    } else {
+      // If outside the range, stay in IDLE
+      if (currentState != IDLE) {
+        resetState();
+      }
+      Serial.println("Outside active time range. Remaining in IDLE.");
+    }
   }
 }
 
