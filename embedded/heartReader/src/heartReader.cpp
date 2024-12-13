@@ -16,11 +16,12 @@ unsigned long flashTimer = 0;
 // const unsigned long IDLE_DURATION = 30 * 60 * 1000;  // 30 minutes
 // const unsigned long FLASHING_DURATION = 5 * 60 * 1000;  // 5 minutes
 // const unsigned long FLASH_INTERVAL = 500;  // 500ms for LED flashing
-int frequency = 0.5;
-
-const unsigned long IDLE_DURATION = frequency * 60 * 1000;  // .5 minutes
+double frequency = 0.5;
+long IDLE_DURATION = frequency * 60 * 1000;  // .5 minutes
 const unsigned long FLASHING_DURATION = 2 * 60 * 1000;  // 2 minutes
 const unsigned long FLASH_INTERVAL = 500;  // 500ms for LED flashing
+
+const int TIMEZONE_OFFSET = -7 * 3600;
 
 // Pin Definitions
 const int ledPin = D7;  // Built-in LED
@@ -45,6 +46,13 @@ byte pulseLED = 11;
 
 int setFrequency(String inputFrequency);
 
+int startTimeInSeconds = 21600;  //6am
+int endTimeInSeconds = 79200;  //10pm
+
+int setActiveTime(String command);
+
+int getSecondsSinceMidnight();
+
 // Setup function
 void setup() {
   Serial.begin(115200);
@@ -64,6 +72,12 @@ void setup() {
   stateStartTime = millis();
 
   Particle.function("frequency", setFrequency);
+  Particle.variable("frequency", frequency);
+
+  Particle.function("setTimeRange", setActiveTime);
+
+  Particle.variable("startTime", startTimeInSeconds);
+  Particle.variable("endTime", endTimeInSeconds);
 }
 
 // Toggle LED on/off every FLASH_INTERVAL
@@ -187,43 +201,101 @@ void resetState() {
 void loop() {
   unsigned long currentTime = millis();
 
-  switch (currentState) {
-    case IDLE:
-      Serial.println("Idle");
+  int currentSeconds = getSecondsSinceMidnight();
 
-      // Wait for IDLE_DURATION (default 30 minutes)
-      if (currentTime - stateStartTime >= IDLE_DURATION) {
-        currentState = WAITING_FOR_READING;
-        stateStartTime = currentTime;
-        flashTimer = currentTime;
-      }
-      break;
+  // Only proceed if the current time falls within the active range
+  if (currentSeconds >= startTimeInSeconds && currentSeconds <= endTimeInSeconds) {
 
-    case WAITING_FOR_READING:
-      Serial.println("Waiting for reading");
+    switch (currentState) {
+      case IDLE:
+        Serial.println("Idle");
 
-      // Start flashing led and waiting for valid metrics
-      if (gatherValidReadings()) {
-        calculateAndPublishMetrics();
-        resetState();
-      }
+        // Wait for IDLE_DURATION (default 30 minutes)
+        if (currentTime - stateStartTime >= IDLE_DURATION) {
+          currentState = WAITING_FOR_READING;
+          stateStartTime = currentTime;
+          flashTimer = currentTime;
+        }
+        break;
 
-      // Timeout if no valid readings within 5 minutes
-      if (currentTime - stateStartTime >= FLASHING_DURATION) {
-        resetState();
-      }
-      break;
+      case WAITING_FOR_READING:
+        Serial.println("Waiting for reading");
+
+        // Start flashing led and waiting for valid metrics
+        if (gatherValidReadings()) {
+          calculateAndPublishMetrics();
+          resetState();
+        }
+
+        // Timeout if no valid readings within 5 minutes
+        if (currentTime - stateStartTime >= FLASHING_DURATION) {
+          resetState();
+        }
+        break;
+    }
+  } else {
+    // If outside the range, stay in IDLE
+    if (currentState != IDLE) {
+      resetState();
+    }
+    Serial.println("Outside active time range. Remaining in IDLE.");
   }
 }
 
 int setFrequency(String inputFrequency) {
-  int frequencyValue = inputFrequency.toInt();
+  float frequencyValue = inputFrequency.toFloat();
+  
 
   if (frequencyValue > 0) {
     frequency = frequencyValue;
+    IDLE_DURATION = frequency * 60 * 1000;
     Serial.println("Set frequency to " + String(frequency));
     return 1; 
   } else {
     return -1;  
   }
+}
+
+int getSecondsSinceMidnight() {
+    time32_t currentTime = Time.local() + TIMEZONE_OFFSET; // Get the current local time as a timestamp
+
+    // Convert time32_t to time_t if necessary
+    time_t convertedTime = static_cast<time_t>(currentTime);
+
+    // Convert to a time structure
+    tm *timeStruct = localtime(&convertedTime);
+
+    // Extract hours, minutes, and seconds from the time structure
+    int currentHour = timeStruct->tm_hour;
+    int currentMinute = timeStruct->tm_min;
+    int currentSecond = timeStruct->tm_sec;
+
+    // Calculate the total seconds since midnight
+    int secondsSinceMidnight = (currentHour * 3600) + (currentMinute * 60) + currentSecond;
+
+    // Debugging prints
+    Serial.println(secondsSinceMidnight);
+    Serial.println(String(currentHour) + ":" + String(currentMinute) + ":" + String(currentSecond));
+
+    return secondsSinceMidnight;
+}
+
+int setActiveTime(String command) {
+  int separatorIndex = command.indexOf(',');
+  if (separatorIndex == -1) {
+    return -1; // Invalid format
+  }
+
+  String startStr = command.substring(0, separatorIndex);
+  String endStr = command.substring(separatorIndex + 1);
+
+  int startHour = startStr.substring(0, 2).toInt();
+  int startMinute = startStr.substring(3, 5).toInt();
+  int endHour = endStr.substring(0, 2).toInt();
+  int endMinute = endStr.substring(3, 5).toInt();
+
+  startTimeInSeconds = (startHour * 3600) + (startMinute * 60);
+  endTimeInSeconds = (endHour * 3600) + (endMinute * 60);
+
+  return 1; // Success
 }
