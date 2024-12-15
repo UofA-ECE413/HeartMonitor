@@ -122,20 +122,6 @@ function addDeviceForm() {
                 console.log(response);
             });
             $.ajax({
-                url: `https://api.particle.io/v1/devices/${deviceId}/frequency`,
-                crossDomain: true,
-                method: 'post',
-                headers: {
-                  'Authorization': 'Bearer cc002dcb1b5b7200f638e7e8688c9ec99438b567'
-                },
-                contentType: 'application/x-www-form-urlencoded',
-                data: {
-                  'args': frequency
-                }
-              }).done(function(response) {
-                console.log(response);
-            });
-            $.ajax({
                 url: `https://api.particle.io/v1/devices/${deviceId}/setTimeRange`,
                 crossDomain: true,
                 method: 'post',

@@ -118,44 +118,6 @@ router.get("/devices", function (req, res) {
     }
 });
 
-router.post("/updatePassword", function (req, res) {
-    if (!req.body.currentPassword || !req.body.newPassword) {
-        return res.status(400).json({ success: false, msg: "Missing current or new password" });
-    }
-
-    if (!req.headers["x-auth"]) {
-        return res.status(401).json({ success: false, msg: "Missing X-Auth header" });
-    }
-
-    const token = req.headers["x-auth"];
-    try {
-        const decoded = jwt.decode(token, secret);
-
-        Patient.findOne({ email: decoded.email }).then(function (patient) {
-            if (!patient) {
-                return res.status(404).json({ success: false, msg: "Patient not found" });
-            }
-
-            if (!bcrypt.compareSync(req.body.currentPassword, patient.passwordHash)) {
-                return res.status(401).json({ success: false, msg: "Current password is incorrect" });
-            }
-
-            const newPasswordHash = bcrypt.hashSync(req.body.newPassword, 10);
-            patient.passwordHash = newPasswordHash;
-
-            patient.save().then(() => {
-                res.status(200).json({ success: true, msg: "Password updated successfully" });
-            }).catch((err) => {
-                res.status(500).json({ success: false, msg: "Failed to update password", error: err });
-            });
-        }).catch((err) => {
-            res.status(500).json({ success: false, msg: "Error accessing database", error: err });
-        });
-    } catch (ex) {
-        res.status(401).json({ success: false, msg: "Invalid JWT" });
-    }
-});
-
 router.post("/addDevice", function (req, res) {
     if (!req.body.device) {
         return res.status(400).json({ success: false, msg: "Invalid or missing device" });
