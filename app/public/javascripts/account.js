@@ -30,6 +30,7 @@ function logout() {
     window.location.replace("index.html");
 }
 
+// Validate new password and call /patients/changePassword
 function changePassword() {
     var password = $('#old_password').val();
     var newPassword = $('#new_password').val();

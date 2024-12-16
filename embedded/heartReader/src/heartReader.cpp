@@ -21,13 +21,10 @@ State currentState = IDLE;
 unsigned long stateStartTime = 0;
 unsigned long flashTimer = 0;
 
-// // Timing Constants
-// const unsigned long IDLE_DURATION = 30 * 60 * 1000;  // 30 minutes
-// const unsigned long FLASHING_DURATION = 5 * 60 * 1000;  // 5 minutes
-// const unsigned long FLASH_INTERVAL = 500;  // 500ms for LED flashing
-double frequency = 0.5;
-long IDLE_DURATION = frequency * 60 * 1000;  // .5 minutes
-const unsigned long FLASHING_DURATION = 2 * 60 * 1000;  // 2 minutes
+// Timing Constants
+double frequency = 30;
+long IDLE_DURATION = frequency * 60 * 1000;  // 30 minutes
+const unsigned long FLASHING_DURATION = 5 * 60 * 1000;  // 5 minutes
 const unsigned long FLASH_INTERVAL = 500;  // 500ms for LED flashing
 
 const int TIMEZONE_OFFSET = -7 * 3600;
@@ -81,6 +78,7 @@ void setup() {
   currentState = IDLE;
   stateStartTime = millis();
 
+  // Register Particle Cloud API functions and variables
   Particle.function("frequency", setFrequency);
   Particle.variable("frequency", frequency);
 
@@ -187,6 +185,8 @@ void calculateAndPublishMetrics() {
   // Publish data as JSON to webhook registered to addData endpoint
   String eventData = String::format("{\"heartRate\": %.2f, \"spo2\": %.2f}", avgHeartRate, avgSpO2);
   bool success = Particle.publish("reading", eventData, PRIVATE);
+
+  // If data is successfully published, briefly flash RGB LED green
   if (success) {
     for(int i = 5; i > 0; i--){
       RGB.color(0, 255, 0);
@@ -224,6 +224,7 @@ void storeData() {
   }
 }
 
+// Upload data stored while not on WiFi
 void uploadData() {
   Serial.println("Uploading Stored Data... Please be patient");
 
@@ -255,8 +256,9 @@ void resetState() {
 void loop() {
   unsigned long currentTime = millis();
 
+  // If device is not connected to WiFi
   if(!WiFi.ready()){
-
+    // Flash RGB LED Yellow to indicate WiFi connection not avalable
     for(int i = 5; i > 0; i--){
       RGB.color(255, 255, 0);
       delay(500);
@@ -273,6 +275,7 @@ void loop() {
       resetState();
     }
   }
+  // If device is connected to WiFi
   else {
 
     Serial.println("Starting New Scan with WiFi");
@@ -324,6 +327,7 @@ void loop() {
   }
 }
 
+// Exposed function to set measurement frequency from website
 int setFrequency(String inputFrequency) {
   float frequencyValue = inputFrequency.toFloat();
   
@@ -338,6 +342,7 @@ int setFrequency(String inputFrequency) {
   }
 }
 
+// Get time since midnight in seconds
 int getSecondsSinceMidnight() {
     time32_t currentTime = Time.local() + TIMEZONE_OFFSET; // Get the current local time as a timestamp
 
@@ -362,6 +367,7 @@ int getSecondsSinceMidnight() {
     return secondsSinceMidnight;
 }
 
+// Exposed function to set measurement time range from website
 int setActiveTime(String command) {
   int separatorIndex = command.indexOf(',');
   if (separatorIndex == -1) {
@@ -371,6 +377,7 @@ int setActiveTime(String command) {
   String startStr = command.substring(0, separatorIndex);
   String endStr = command.substring(separatorIndex + 1);
 
+  // Convert string in format "HH:MM,HH:MM" to start time and end time in seconds
   int startHour = startStr.substring(0, 2).toInt();
   int startMinute = startStr.substring(3, 5).toInt();
   int endHour = endStr.substring(0, 2).toInt();

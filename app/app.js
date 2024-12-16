@@ -4,6 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
+// Import routers
 var indexRouter = require('./routes/index');
 var patientsRouter = require('./routes/patients');
 var readingsRouter = require('./routes/readings');
@@ -20,6 +21,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Use routers
 app.use('/', indexRouter);
 app.use('/patients', patientsRouter);
 app.use('/readings', readingsRouter);

@@ -1,5 +1,5 @@
 
-// If patient is logged in, show dashboard and account in top nav. Otherwise show login and sign up. 
+// If patient is logged in, show dashboard, devices, reference, and account in top nav. Otherwise show login and sign up. 
 $(function () {
     const token = window.localStorage.getItem('token');
     

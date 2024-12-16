@@ -22,7 +22,7 @@ function openAddDevice() {
     modal.css("display", "flex");
 }
 
-// JQuery ajax call to devices endpoint, add devices to dashboard device list and dropdown menu
+// JQuery ajax call to devices endpoint, add devices to dashboard device list 
 function getDevices() {
     $.ajax({
         url: '/patients/devices',
@@ -32,10 +32,8 @@ function getDevices() {
     })
     .done(function (data) {
         $('#devices').html(`<div class="device-header"><h2>Your Devices</h2><button id="addDeviceBtn" class="button" style="float:right;" onclick="openAddDevice()">&#43</button></div>`);
+        // Create device list item for each device in user account
         data.devices.forEach((device) => {
-            // $('#devices').append(`<tr><td>${device.name}</td><td><button id=${device.id} class="button" onclick="manageDeviceForm(this)">Manage Device</button></td></tr>`);
-            // $('#deviceDropdown').append(`<option value=${device.name} id="${device.id}-dropdown">${device.name}</option>`);
-
             const $deviceItem = $("<div>").addClass("device-item");
 
             const $deviceNameDisplay = $("<span>")
@@ -60,6 +58,7 @@ function getDevices() {
     });
 }
 
+// Register button to open add device form and submit button
 function addDeviceForm() {
     const modal = $("#deviceFormModal");
     const addDeviceBtn = $("#addDeviceBtn");
@@ -81,6 +80,7 @@ function addDeviceForm() {
         console.log(timeRange);
 
         if ($("#deviceForm").valid()) {
+            // Add device to database
             $.ajax({
                 url: "/patients/addDevice",
                 method: "POST",
@@ -107,6 +107,7 @@ function addDeviceForm() {
 
             console.log(`https://api.particle.io/v1/devices/${deviceId}/frequency: ${frequency}`);
 
+            // Update measurement frequency using particle cloud API
             $.ajax({
                 url: `https://api.particle.io/v1/devices/${deviceId}/frequency`,
                 crossDomain: true,
@@ -121,6 +122,8 @@ function addDeviceForm() {
               }).done(function(response) {
                 console.log(response);
             });
+
+            // Update measurement time range using particle cloud API
             $.ajax({
                 url: `https://api.particle.io/v1/devices/${deviceId}/setTimeRange`,
                 crossDomain: true,
@@ -138,6 +141,7 @@ function addDeviceForm() {
         } 
     });
 
+    // Close form when clicking outside of the form
     $(window).on("click", function (e) {
         if ($(e.target).is(modal)) {
             modal.hide();
@@ -145,6 +149,7 @@ function addDeviceForm() {
     });
 }
 
+// Open manage device form and register delete/update buttons
 function manageDeviceForm(e) {
     const modal = $("#deviceFormModal");
     const closeModal = $("#closeForm");
@@ -157,6 +162,7 @@ function manageDeviceForm(e) {
 
     const deviceID = e.id;
 
+    // Get details for the selected device
     $.ajax({
         url: `/patients/deviceInfo/${deviceID}`,
         method: 'GET',
@@ -176,12 +182,14 @@ function manageDeviceForm(e) {
 
     modal.css("display", "flex");
 
+    // Register event listeners
     closeModal.on("click", function () {
         modal.css("display", "none");
         $("#deleteDevice").off("click");
         $("#updateDevice").off("click");
     });
 
+    // On delete, remove device from database
     $('#deleteDevice').on("click", function () {
         $.ajax({
             url: `/patients/deleteDevice/${deviceID}`, 
@@ -209,6 +217,7 @@ function manageDeviceForm(e) {
     })
 
     $("#updateDevice").on("click", function() {
+        // Update device details in database
         $.ajax({
             url: `/patients/updateDevice/${deviceID}`,
             method: "POST",
@@ -235,6 +244,7 @@ function manageDeviceForm(e) {
 
         console.log(`https://api.particle.io/v1/devices/${deviceID}/frequency: ${$("#frequency").val()}`);
         
+        // Update measurement frequency using particle cloud API
         $.ajax({
             url: `https://api.particle.io/v1/devices/${deviceID}/frequency`,
             crossDomain: true,
@@ -250,6 +260,7 @@ function manageDeviceForm(e) {
             console.log(response);
         });
 
+        // Update measurement time range using particle cloud API
         $.ajax({
             url: `https://api.particle.io/v1/devices/${deviceID}/setTimeRange`,
             crossDomain: true,
@@ -266,6 +277,8 @@ function manageDeviceForm(e) {
         });
     })
 
+
+    // Close form when clicking outside of the form
     $(window).on("click", function (e) {
         if ($(e.target).is(modal)) {
             modal.hide();
