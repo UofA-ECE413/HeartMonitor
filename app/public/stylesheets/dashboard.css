@@ -8,10 +8,6 @@ body {
     color: #333;
 }
 
-h1, h2, h3 {
-    margin: 0;
-}
-
 a {
     text-decoration: none;
     color: #007BFF;
@@ -65,7 +61,6 @@ section {
 
 h2 {
     color: #00695c;
-    /* margin-bottom: 1rem; */
 }
 
 /* Devices Section */
@@ -216,4 +211,112 @@ section:nth-of-type(3) input[type="date"] {
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+canvas {
+    width: 750px;
+    height: 375px;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    nav {
+        gap: 0.5rem;
+    }
+
+    header h1 {
+        font-size: 2rem;
+    }
+
+    header p {
+        font-size: 1rem;
+    }
+
+    #devices-section, #readings-section {
+        padding: 1rem;
+    }
+
+    .device, .reading {
+        flex: 1 1 calc(50% - 1rem);
+    }
+
+    section:nth-of-type(2) > div > div {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    section:nth-of-type(2) > div > div > div span + span {
+        width: 3rem;
+        height: 3rem;
+        font-size: 1rem;
+    }
+
+    .readings-list {
+        max-height: 400px;
+    }
+
+    section:nth-of-type(3) th, section:nth-of-type(3) td {
+        padding: 0.5rem;
+    }
+
+    canvas {
+        width: 500px;
+        height: 250px;
+    }
+}
+
+@media (max-width: 480px) {
+    nav {
+        padding: 0.5rem;
+        font-size: 0.8rem;
+    }
+
+    header {
+        padding: 1rem;
+    }
+
+    header h1 {
+        font-size: 1.5rem;
+    }
+
+    header p {
+        font-size: 0.9rem;
+    }
+
+    #devices-section, #readings-section {
+        padding: 0.75rem;
+    }
+
+    .device, .reading {
+        flex: 1 1 100%;
+    }
+
+    section:nth-of-type(2) > div {
+        padding: 1rem;
+    }
+
+    section:nth-of-type(2) > div > div > div span + span {
+        width: 2.5rem;
+        height: 2.5rem;
+        font-size: 0.9rem;
+    }
+
+    .readings-list {
+        max-height: 300px;
+    }
+
+    section:nth-of-type(3) th, section:nth-of-type(3) td {
+        font-size: 0.9rem;
+        padding: 0.5rem;
+    }
+
+    section:nth-of-type(3) input[type="date"] {
+        font-size: 0.9rem;
+        padding: 0.4rem;
+    }
+
+    canvas {
+        width: 300px;
+        height: 150px;
+    }
 }

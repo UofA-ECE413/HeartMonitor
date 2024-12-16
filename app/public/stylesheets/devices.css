@@ -288,3 +288,10 @@ td label {
 input[type='text'], input[type='number'] {
     width: 90%;
 }
+
+@media (max-width: 480px) {
+    nav {
+        padding: 0.5rem;
+        font-size: 0.8rem;
+    }
+}
