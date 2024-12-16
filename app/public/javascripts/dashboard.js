@@ -97,8 +97,8 @@ function getDevices() {
     });
 }
 
+// Update heart rate chart with selected daily data
 function updateHeartChart(xlabels, heartRates) {
-    // console.log(heartRates);
     const data = {
         labels: xlabels,
         datasets: [{
@@ -134,13 +134,14 @@ function updateHeartChart(xlabels, heartRates) {
     const ctx = document.getElementById('heartRateChart').getContext('2d');
     
     if (window[`myChart1`]) {
-        window[`myChart1`].data = data; // Update the chart data
-        window[`myChart1`].update(); // Re-render the chart
+        window[`myChart1`].data = data; 
+        window[`myChart1`].update(); 
     } else {
-        window[`myChart1`] = new Chart(ctx, config); // Create the chart if it doesn't exist
+        window[`myChart1`] = new Chart(ctx, config);
     }
 }
 
+// Update SpO2 chart with selected daily data
 function updateSpo2Chart(xlabels, spo2s) {
     const data = {
         labels: xlabels,
@@ -176,13 +177,14 @@ function updateSpo2Chart(xlabels, spo2s) {
 
     const ctx = document.getElementById('spo2Chart').getContext('2d');
     if (window[`myChart2`]) {
-        window[`myChart2`].data = data; // Update the chart data
-        window[`myChart2`].update(); // Re-render the chart
+        window[`myChart2`].data = data; 
+        window[`myChart2`].update(); 
     } else {
-        window[`myChart2`] = new Chart(ctx, config); // Create the chart if it doesn't exist
+        window[`myChart2`] = new Chart(ctx, config); 
     }
 }
 
+// Format time 
 function getFormattedTime(date) {
     const hours = date.getHours();
     const minutes = date.getMinutes();
@@ -194,6 +196,7 @@ function getFormattedTime(date) {
     return `${paddedHours}:${paddedMinutes}`;
 }
 
+// Compare dates to check data for selected range
 function compareDates(  localDate, isoDate) {
     let arr = localDate.split(',')[0].split('/');
     const month1 = parseInt(arr[0]);
@@ -208,6 +211,7 @@ function compareDates(  localDate, isoDate) {
     return (year1 == year2 && month1 == month2 && day1 == day2);
 }
 
+// Update weekly summary statistics
 function loadWeeklySummary(heartRates, spo2s) {
     if (heartRates.length > 0) {
         let max = Math.max(...heartRates);

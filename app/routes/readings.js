@@ -12,12 +12,9 @@ const secret = fs.readFileSync(__dirname + '/../keys/jwtkey').toString();
 const API_KEY = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 console.log(`Generated API Key: ${API_KEY}`); // Print the generated API Key on server startup
 
-// example of authentication
-// register a new patient
-
-// see javascript/signup.js for ajax call
-// see Figure 9.3.5: Node.js project uses token-based authentication and password hashing with bcryptjs on zybooks
-
+// Behavior: Validates the given API key and adds heart rate and pulse oxygen data associated with a device id and the current time to the readings database.
+// Expected parameters: Requires a valid API key and expects that a data object (including heart rate and pulse oxygen) and device ID are passed through the body of the POST request.
+// Responses: 401 (missing data), 201 (data added), 400 (error saving data), 403 (invalid API key).
 router.post('/addData', function (req, res) {
     const { API_Key } = req.body; // Extract only the API_Key from the request body
 
@@ -43,7 +40,6 @@ router.post('/addData', function (req, res) {
         });
         console.log(newReading);
         newReading.save().then((reading) => {
-            // Send back a token that contains the user's username
             console.log("SUCCESS");
             res.status(201).json({ success: true, msg: "Data added" });
         }).catch((err) => {
@@ -57,6 +53,9 @@ router.post('/addData', function (req, res) {
     }
 });
 
+// Behavior: Returns heart rate and pulse oxygen data for the given device ID.
+// Expected parameters: Expects a device ID passed through the URL and an x-auth header containing the current session token.
+// Responses: 401 (missing x-auth header, invalid JWT), 200 (readings JSON), 400 (error accessing database).
 router.get('/getData/:deviceID', function (req, res) {
     // See if the X-Auth header is set
     if (!req.headers["x-auth"]) {

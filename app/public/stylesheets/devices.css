@@ -65,7 +65,6 @@ section {
 
 h2 {
     color: #00695c;
-    /* margin-bottom: 1rem; */
 }
 
 /* Devices Section */
@@ -289,6 +288,7 @@ input[type='text'], input[type='number'] {
     width: 90%;
 }
 
+/* Responsive Styles */
 @media (max-width: 480px) {
     nav {
         padding: 0.5rem;

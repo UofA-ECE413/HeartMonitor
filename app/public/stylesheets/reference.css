@@ -65,7 +65,6 @@ section {
 
 h2 {
     color: #00695c;
-    /* margin-bottom: 1rem; */
 }
 
 
@@ -104,6 +103,7 @@ tr:hover {
     background: #e0f2f1;
 }
 
+/* Responsive Styles */
 @media (max-width: 480px) {
     nav {
         padding: 0.5rem;
