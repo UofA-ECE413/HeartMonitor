@@ -43,7 +43,7 @@ Use the following credentials to log in and explore the system with recently col
     - Behavior: Checks if an account already exists under the given email. If the account exists then an error message will be returned, otherwise the account is created using the email and the (hashed) password.
     - Expected parameters: Expects an email and password passed in the body of the POST request.
     - Responses: 401 (email already exists), 201 (patient account has been created), 400 (error creating patient, error searching for patient).
--/patients/logIn (POST)
+- /patients/logIn (POST)
     - Behavior: Searches for an account associated with the given email in the database, if an account is found it will compare the given password to the account password hash.
     - Expected parameters: Expects an email and password passed in the body of the POST request.
     - Responses: 401 (patient not found, password does not match), 201 (login success), 400 (error updating patient status, error searching for patient).
