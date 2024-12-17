@@ -20,13 +20,12 @@ This project prioritizes accessibility and precision, empowering users to take c
 
 ## Links
 Explore the system in action:
-- [Project Server](#)
-- [Pitch](#) - Project Pitch
-- [Demo](#) - Demonstration Video
+- [Project Server](http://ec2-3-19-120-243.us-east-2.compute.amazonaws.com:3000)
+- [Pitch](https://youtu.be/b3MiENMf4rY) - Project Pitch
+- [Demo](https://youtu.be/dJEOM3U_T4M) - Demonstration Video
 
 ## Login Credentials
 Use the following credentials to log in and explore the system with recently collected data:
 
 - **Email**: `demail@gmail.com`
 - **Password**: `Password1!`
-
