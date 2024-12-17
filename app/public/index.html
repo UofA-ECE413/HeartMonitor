@@ -2,47 +2,65 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
-        <!-- Import Google Fonts -->
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-        <!-- Link to CSS -->
         <link href="stylesheets/index.css" rel="stylesheet">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Heart Monitor</title>
+        <title>Heart Track</title>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="javascripts/index.js"></script>
     </head>
     <body>
-        <nav>
-            <a href="login.html">Login</a>
-            <a href="signup.html">Sign up</a>
-            <a href="account.html" class="collection-item">Account</a>
-        </nav>
+        <!-- Navigation Bar -->
+        <nav></nav>
+        <!-- Page Title -->
         <header>
-            <h1>Heart Monitor</h1>
+            <h1>Heart Track</h1>
             <p>A project to keep track of your health with our innovative heart monitoring system.</p>
         </header>
         <main>
+            <!-- About the Project -->
+            <section class="container">
+                <div class="section">
+                    <h2>About</h2>
+                    <p>Heart Track is a cost-effective, IoT-enabled web application designed to help users monitor their heart rate and blood oxygen saturation levels throughout the day. Leveraging modern IoT technology, Heart Track provides a seamless, customizable, and user-friendly experience for tracking vital health metrics.</p>
+
+                    <h3>Key Features</h3>
+                    <ul>
+                        <li><strong>Real-Time Health Monitoring:</strong> Uses the MAX30102 sensor to measure heart rate and blood oxygen levels based on user-defined schedules.</li>
+                        <li><strong>Customizable Reminders:</strong> Configure the frequency and timing of measurements to suit daily routines or healthcare plans.</li>
+                        <li><strong>Intuitive Web Application:</strong> A responsive design ensures seamless use across desktop, tablet, and mobile devices.</li>
+                    </ul>
+
+                    <h3>Technology Highlights</h3>
+                    <ul>
+                        <li><strong>IoT Integration:</strong> Powered by the Particle Argon microcontroller for efficient data collection and transmission.</li>
+                        <li><strong>Full-Stack Development:</strong> Combines a scalable backend hosted on AWS EC2 with a secure MongoDB database.</li>
+                        <li><strong>Ease of Setup:</strong> Simple hardware setup using the Particle Argon, MAX30102 sensor, mini breadboard, and jumper wires.</li>
+                    </ul>
+                </div>
+            </section>
+            
+            <!-- Meet the Team -->
             <section>
                 <h2>Team Members</h2>
                 <div class="team">
                     <div class="member">
                         <h3>Dorian Shay</h3>
-                        <p>Email: <a href="mailto:dorian@example.com">dorian@example.com</a></p>
+                        <p>Email: <a href="mailto:dorianshay0806@arizona.edu">dorianshay0806@arizona.edu</a></p>
                         <p>Major: Software Engineering</p>
-                        <!-- image placeholder -->
-                        <div class="profile-pic"></div>
+                        <div class="profile-pic"><img src="./photos/dorian.jpg" alt="Dorian Shay" class="profile-pic" /></div>
                     </div>
                     <div class="member">
                         <h3>Malia Edmonds</h3>
                         <p>Email: <a href="mailto:maliaedmonds@arizona.edu">maliaedmonds@arizona.edu</a></p>
                         <p>Major: Software Engineering</p>
-                        <!-- image placeholder -->
-                        <div class="profile-pic"></div>
+                        <div class="profile-pic"><img src="./photos/malia.jpeg" alt="Malia Edmonds" class="profile-pic" /></div>
                     </div>
                     <div class="member">
                         <h3>Aidan Roig</h3>
-                        <p>Email: <a href="mailto:aidan@example.com">aidan@example.com</a></p>
+                        <p>Email: <a href="mailto:aroig@arizona.edu">aroig@arizona.edu</a></p>
                         <p>Major: Software Engineering</p>
-                        <!-- image placeholder -->
-                        <div class="profile-pic"></div>
+                        <div class="profile-pic"><img src="./photos/aidan.JPG" alt="Aidan Roig" class="profile-pic" /></div>
                     </div>
                 </div>
             </section>

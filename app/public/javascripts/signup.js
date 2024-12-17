@@ -1,15 +1,18 @@
 // public/javasciprts/signup.js
 
+// Regex to validate email
 function validateEmail(email) {
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailPattern.test(email);
 }
 
+// Regex to validate password
 function validatePassword(password) {
     const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
     return passwordPattern.test(password);
 }
 
+// If email and password aren't valid, display error message. Otherwise JQuery ajax call to signUp endpoint.
 function signup() {
     // data validation
     if ($('#email').val() === "" || !validateEmail($('#email').val())) {
@@ -54,6 +57,7 @@ function signup() {
     });
 }
 
+// Register sign up button
 $(function () {
     $('#btnSignUp').click(signup);
 });

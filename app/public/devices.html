@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+        <link href="stylesheets/devices.css" rel="stylesheet">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Heart Monitor Dashboard</title>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="javascripts/devices.js"></script>
+    </head>
+    <body>
+        <!-- Navigation Bar -->
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="reference.html">Reference</a>
+            <a href="account.html">Account</a>
+        </nav>
+        <!-- Page Title -->
+        <header>
+            <h1>Devices</h1>
+            <p>Manage your registered devices.</p>
+        </header>
+        <!-- Devices List (Populated Using JavaScript) -->
+        <main>
+            <section>
+                <div id="devices" class="devices-list"></div>
+            </section>
+        </main>
+        <!-- Modal Add/Update Device Form -->
+        <div id="deviceFormModal" class="modal">
+            <div class="modal-content">
+                <span id="closeForm" class="close">&times;</span>
+                <h3 id="form-title"></h3>
+                <form id="deviceForm">
+                    <table>
+                        <tr>
+                            <td><label for="deviceName">Name:</label></td>
+                            <td><input type="text" id="deviceName" name="deviceName" required></td>
+                        </tr>
+                        <tr>
+                            <td><label for="deviceId">Device ID:</label></td>
+                            <td><input type="text" id="deviceId" name="deviceId" required></td>
+                        </tr>
+                        <tr>
+                            <td><label for="frequency">Measurement Frequency (Minutes):</label></td>
+                            <td><input type="number" id="frequency" name="frequency" required min="0" value="30"></td>
+                        </tr>
+                        <tr>
+                            <td><label for="startTime">Time Range</label></td>
+                            <td><input type="time" id="startTime" class="time-input" value="06:00"> - <input type="time" id="endTime" class="time-input" value="22:00"></td>
+                        </tr>
+                    </table>
+                    <div id="formButtons">
+                        <button type="button" id="submitDevice" class="button">Add Device</button>
+                        <button type="button" id="deleteDevice" class="button">Delete</button>
+                        <button type="button" id="updateDevice" class="button">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>
